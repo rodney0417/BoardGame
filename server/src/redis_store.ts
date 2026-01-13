@@ -8,7 +8,8 @@ import { UnoRound } from './games/uno/domain';
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 
-console.log(`[Redis] Connecting to ${REDIS_HOST}:${REDIS_PORT}...`);
+console.log(`[Redis] Setup - Env REDIS_HOST: '${process.env.REDIS_HOST}'`);
+console.log(`[Redis] Setup - Final Connection Target: ${REDIS_HOST}:${REDIS_PORT}`);
 
 const redis = new Redis({
   host: REDIS_HOST,
