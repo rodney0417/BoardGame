@@ -39,5 +39,6 @@ export interface PictomaniaHistoryRecord {
   word: string; // 題目
   playerId: string;
   playerName: string; // 冗餘存儲，怕玩家離開
+  playerColor?: string; // 玩家顏色 (Optional to avoid breaking existing history if any)
   imageBase64: string; // 圖片數據
 }
