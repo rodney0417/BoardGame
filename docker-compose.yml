@@ -1,0 +1,46 @@
+services:
+  backend:
+    build: ./server
+    container_name: boardgame-hub-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REDIS_HOST=redis
+    restart: always
+    command: npm run dev
+    volumes:
+      - ./server:/app
+      - backend_node_modules:/app/node_modules
+      - ./shared:/shared
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./client
+      target: dev
+    container_name: boardgame-hub-frontend
+    ports:
+      - "8085:8085"
+    depends_on:
+      - backend
+    restart: always
+    environment:
+      - VITE_API_URL=http://backend:3001
+    volumes:
+      - ./client:/app
+      - frontend_node_modules:/app/node_modules
+      - ./shared:/shared
+
+  redis:
+    image: redis:alpine
+    container_name: boardgame-hub-redis
+    restart: always
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+  backend_node_modules:
+  frontend_node_modules:
