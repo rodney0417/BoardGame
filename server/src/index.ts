@@ -18,6 +18,10 @@ const app = express();
 app.use(cors());
 
 // Serve static files in production
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 const publicPath = path.join(process.cwd(), 'public');
 if (fs.existsSync(publicPath)) {
   console.log(`[Server] Serving static files from ${publicPath}`);
