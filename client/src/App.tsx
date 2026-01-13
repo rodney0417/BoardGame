@@ -21,6 +21,7 @@ function App() {
   const [activeRoom, setActiveRoom] = useState<RoomDTO | null>(null);
   const [toasts, setToasts] = useState<any[]>([]);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
 
   // Helper to add toast
   const addToast = (type: string, message: string) => {
@@ -156,6 +157,11 @@ function App() {
         </Navbar.Brand>
         <div className="ms-auto d-flex align-items-center gap-3 pe-2">
           <Navbar.Text className="d-none d-sm-block">你好, {username}</Navbar.Text>
+           {appState === 'lobby' && (
+             <Button variant="success" size="sm" className="rounded-pill px-3 fw-bold shadow-sm" onClick={() => setShowCreateModal(true)}>
+               創建房間
+             </Button>
+           )}
            {appState === 'room' && (
             <Button variant="outline-danger" size="sm" className="rounded-pill px-3 text-nowrap" onClick={handleLeaveRoom}>
               離開房間
@@ -176,7 +182,7 @@ function App() {
       </ToastContainer>
 
       {appState === 'lobby' ? (
-        <LobbyView roomList={roomList} onJoinRoom={handleJoinRoom} />
+        <LobbyView roomList={roomList} onJoinRoom={handleJoinRoom} showCreateModal={showCreateModal} onCloseCreateModal={() => setShowCreateModal(false)} />
       ) : activeRoom && (
         <GameSessionView socket={socket} activeRoom={activeRoom} me={activeRoom.players.find(p => p.peerId === peerId)!} />
       )}

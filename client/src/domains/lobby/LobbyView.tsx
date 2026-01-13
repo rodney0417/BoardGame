@@ -5,11 +5,12 @@ import { PLAYER_COLORS } from '../../constants';
 
 interface LobbyViewProps {
   roomList: RoomListInfo[];
-  // onJoinRoom now receives the final data package needed to join
   onJoinRoom: (roomId: string, gameType: string, color?: string, drawTime?: number) => void;
+  showCreateModal: boolean;
+  onCloseCreateModal: () => void;
 }
 
-const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom }) => {
+const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateModal, onCloseCreateModal }) => {
   // UI States for Modals
   const [selectedGame, setSelectedGame] = useState<string>('pictomania');
   const [activeColor, setActiveColor] = useState<string>(PLAYER_COLORS[0]);
@@ -17,7 +18,6 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom }) => {
   
   const [showColorModal, setShowColorModal] = useState<boolean>(false);
   const [showTimeModal, setShowTimeModal] = useState<boolean>(false);
-  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
   
   const [createRoomName, setCreateRoomName] = useState<string>('');
   const [pendingRoom, setPendingRoom] = useState<any | null>(null);
@@ -58,7 +58,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom }) => {
       // Close all modals
       setShowColorModal(false);
       setShowTimeModal(false);
-      setShowCreateModal(false);
+      onCloseCreateModal();
       setPendingRoom(null);
   };
 
@@ -70,21 +70,9 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom }) => {
           {roomList.length === 0 ? (
             <Card className="custom-card p-5 border-0 text-center text-muted">
               <p className="m-0">目前沒有房間，來創一個吧！</p>
-              <div className="mt-4">
-                  <Button variant="success" className="rounded-pill px-4 fw-bold" onClick={() => setShowCreateModal(true)}>
-                      創建房間
-                  </Button>
-              </div>
             </Card>
           ) : (
              <Row className="g-4">
-               {/* Add Create Button in Grid if list is not empty */}
-               <Col xl={12} className="text-end mb-2">
-                  <Button variant="success" className="rounded-pill px-4 fw-bold" onClick={() => setShowCreateModal(true)}>
-                      + 創建新房間
-                  </Button>
-               </Col>
-
               {roomList.map((r) => (
                 <Col xl={6} key={r.id}>
                   <Card className="custom-card border-0 h-100" style={{ minHeight: '220px' }}>
@@ -144,7 +132,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom }) => {
       </Row>
 
       {/* Create Modal */}
-      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered>
+      <Modal show={showCreateModal} onHide={onCloseCreateModal} centered>
         <Modal.Header closeButton className="border-0 bg-white">
           <Modal.Title className="fw-bold">創建新房間</Modal.Title>
         </Modal.Header>
@@ -183,7 +171,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom }) => {
                 },
                 true,
               );
-              setShowCreateModal(false);
+              onCloseCreateModal();
               setCreateRoomName('');
             }}
             disabled={!createRoomName}
