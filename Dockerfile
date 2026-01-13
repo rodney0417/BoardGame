@@ -20,25 +20,13 @@ RUN npm run build 2>/dev/null || npx tsc
 FROM node:20-alpine
 WORKDIR /app
 
-# Install production dependencies only if possible, but for simplicity copy all
+# Install dependencies (copy entire node_modules from build to include devDeps like tsx)
 COPY server/package*.json ./
-RUN npm install --production
+COPY server/tsconfig.json ./
 
-# Copy compiled backend
-# Note: Assuming 'tsc' outputs to 'dist'. If using 'tsx' directly in prod, we copy src.
-# To be safe and consistent with previous behavior, let's copy source and run with tsx if build fails/is complex, 
-# BUT standard practice is running compiled JS.
-# Checking server/package.json -> It uses `tsx src/index.ts` for dev. It doesn't have a build script properly defined for output?
-# Let's adjust: We will copy source and use tsx for now to match 'npm start' behavior if it wraps tsx, 
-# OR we install tsx globally.
-# Actually, let's look at package.json again. 
-# "start": "tsx src/index.ts"
-# So we need tsx in production.
-
-RUN npm install -g tsx
-
-COPY --from=backend-build /app/src ./src
+# Copy modules and source
 COPY --from=backend-build /app/node_modules ./node_modules
+COPY --from=backend-build /app/src ./src
 COPY --from=backend-build /shared ../shared
 
 # Copy frontend build to public
@@ -49,4 +37,4 @@ ENV PORT=8000
 
 EXPOSE 8000
 
-CMD ["tsx", "src/index.ts"]
+CMD ["npm", "start"]
