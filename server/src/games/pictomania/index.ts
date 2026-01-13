@@ -318,7 +318,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     room.players.forEach((p) => (p.isDoneDrawing = true));
     io.to(room.id).emit('toast', {
       type: 'info',
-      message: `⏰ 時間到！請把握時間猜題，所有人都猜完後將結束回合。`,
+      message: `時間到！請把握時間猜題，所有人都猜完後將結束回合。`,
     });
     return true;
   },
@@ -334,7 +334,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         if (room.players.length < 2) {
           socket.emit('toast', {
             type: 'error',
-            message: '❌ 至少需要 2 人才能開始遊戲',
+            message: '至少需要 2 人才能開始遊戲',
           });
           return false;
         }
@@ -377,7 +377,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         if (allDone) {
           io.to(room.id).emit('toast', {
             type: 'info',
-            message: '🎨 所有人都畫完了，請把握時間猜題！',
+            message: '所有人都畫完了，請把握時間猜題！',
           });
         }
       }
@@ -404,7 +404,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         if (!guesser.isDoneDrawing) {
           socket.emit('toast', {
             type: 'error',
-            message: '⚠️ 您必須先點擊「畫好了」才能開始猜題！',
+            message: '您必須先點擊「畫好了」才能開始猜題！',
           });
           return false;
         }
@@ -412,7 +412,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         if (guesser.isDoneGuessing) {
           socket.emit('toast', {
             type: 'error',
-            message: '⚠️ 您已經結束猜題，無法再猜！',
+            message: '您已經結束猜題，無法再猜！',
           });
           return false;
         }
@@ -425,7 +425,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
             // We verified in domain.test that setGuess updates if same target.
             roundModel.setGuess(guesserId, targetPlayerId, number);
           } catch (e: any) {
-            socket.emit('toast', { type: 'error', message: `⚠️ ${e.message}` });
+            socket.emit('toast', { type: 'error', message: `${e.message}` });
             return false;
           }
         }

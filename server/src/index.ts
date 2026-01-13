@@ -357,7 +357,7 @@ function startRoomTimer(room: Room) {
         // Fallback default behavior
         room.players.forEach((p) => (p.isDoneDrawing = true));
         broadcastRoomData(room.id);
-        io.to(room.id).emit('toast', { type: 'warning', message: '⏰ 時間到！' });
+        io.to(room.id).emit('toast', { type: 'warning', message: '時間到！' });
       }
     }
   }, 1000);
