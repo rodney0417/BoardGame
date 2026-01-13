@@ -30,12 +30,12 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   const levels = [1, 2, 3, 4];
   const isHost = players.length > 0 && players[0].id === me.id;
-  
+
   const [showGuessModal, setShowGuessModal] = useState(false);
   const [targetPlayer, setTargetPlayer] = useState<PictomaniaPlayer | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<number>(1);
-  
+
   const myCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRefs = useRef<Record<string, HTMLCanvasElement | null>>({});
   const isDrawing = useRef(false);
@@ -43,24 +43,24 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   useEffect(() => {
     if (phase === 'game_over') return;
-    
-    const handleUpdateCanvas = (data: { playerId: string, imageBase64: string }) => {
+
+    const handleUpdateCanvas = (data: { playerId: string; imageBase64: string }) => {
       if (data.playerId !== me.id && canvasRefs.current[data.playerId]) {
         const canvas = canvasRefs.current[data.playerId];
         const ctx = canvas?.getContext('2d');
         if (ctx && canvas) {
-            const img = new Image();
-            img.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = data.imageBase64;
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+          };
+          img.src = data.imageBase64;
         }
       }
     };
 
     socket.on('update_canvas', handleUpdateCanvas);
-    
+
     const handleDraw = (data: any) => {
       if (data.playerId !== me.id && canvasRefs.current[data.playerId]) {
         const canvas = canvasRefs.current[data.playerId];
@@ -84,15 +84,15 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
       }
     });
 
-    return () => { 
-      socket.off('update_canvas', handleUpdateCanvas); 
+    return () => {
+      socket.off('update_canvas', handleUpdateCanvas);
       socket.off('draw', handleDraw);
       socket.off('clear_canvas');
     };
   }, [players, me.id, socket, phase]);
 
   useEffect(() => {
-    Object.values(canvasRefs.current).forEach(canvas => {
+    Object.values(canvasRefs.current).forEach((canvas) => {
       canvas?.getContext('2d')?.clearRect(0, 0, 1200, 800);
     });
     myCanvasRef.current?.getContext('2d')?.clearRect(0, 0, 1200, 800);
@@ -105,20 +105,22 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
         tempCanvas.width = 1200;
         tempCanvas.height = 800;
         const tempCtx = tempCanvas.getContext('2d');
-        
+
         if (tempCtx) {
           tempCtx.fillStyle = '#ffffff';
           tempCtx.fillRect(0, 0, 1200, 800);
           tempCtx.drawImage(myCanvasRef.current, 0, 0);
-          
+
           const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.6);
           socket.emit('upload_image', { roomId, imageBase64: dataUrl });
         }
       }
     };
-    
+
     socket.on('request_round_images', handleRequestImages);
-    return () => { socket.off('request_round_images', handleRequestImages); };
+    return () => {
+      socket.off('request_round_images', handleRequestImages);
+    };
   }, [socket, roomId]);
 
   const startGame = () => socket.emit('start_game', { roomId, difficulty: selectedDifficulty });
@@ -140,14 +142,14 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   const handleGuessSubmit = (symbol: string, number: number) => {
     if (targetPlayer) {
-      socket.emit('guess_word', { 
-        roomId, 
-        guesserId: me.id, 
-        targetPlayerId: targetPlayer.id, 
-        symbol, 
-        number 
-      }); 
-      setShowGuessModal(false); 
+      socket.emit('guess_word', {
+        roomId,
+        guesserId: me.id,
+        targetPlayerId: targetPlayer.id,
+        symbol,
+        number,
+      });
+      setShowGuessModal(false);
     }
   };
 
@@ -162,88 +164,134 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
       ) : (
         <Row>
           <Col lg={8}>
-            <Card className="custom-card p-4 mb-4" style={{ borderTop: `8px solid ${me?.color || 'var(--primary-color)'}` }}>
+            <Card
+              className="custom-card p-4 mb-4"
+              style={{ borderTop: `8px solid ${me?.color || 'var(--primary-color)'}` }}
+            >
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div className="game-header-stats d-flex align-items-center gap-2">
-                  <div className="d-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm text-nowrap user-select-none" style={{ border: '1px solid #e9ecef' }}>
-                      <span className="text-uppercase text-secondary me-2 fw-bold d-none d-sm-inline" style={{ fontSize: '0.7rem', letterSpacing: '0.05em' }}>Round</span>
-                      <span className="fw-bolder text-dark" style={{ fontSize: '1.25rem', lineHeight: 1, fontFamily: 'Rubik, sans-serif' }}>{currentRound}</span>
-                      <span className="text-muted mx-1 small">/</span>
-                      <span className="text-muted fw-medium fs-6">5</span>
+                  <div
+                    className="d-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm text-nowrap user-select-none"
+                    style={{ border: '1px solid #e9ecef' }}
+                  >
+                    <span
+                      className="text-uppercase text-secondary me-2 fw-bold d-none d-sm-inline"
+                      style={{ fontSize: '0.7rem', letterSpacing: '0.05em' }}
+                    >
+                      Round
+                    </span>
+                    <span
+                      className="fw-bolder text-dark"
+                      style={{
+                        fontSize: '1.25rem',
+                        lineHeight: 1,
+                        fontFamily: 'Rubik, sans-serif',
+                      }}
+                    >
+                      {currentRound}
+                    </span>
+                    <span className="text-muted mx-1 small">/</span>
+                    <span className="text-muted fw-medium fs-6">5</span>
                   </div>
                 </div>
-                
+
                 <div className="d-flex align-items-center gap-2 gap-sm-3 flex-wrap">
                   {phase !== 'waiting' && (
-                      <div className="d-flex align-items-center gap-2">
-                          <div className="d-flex align-items-center bg-light rounded-pill px-2 px-sm-3 py-1 shadow-sm border">
-                              <SymbolIcon symbol={me?.symbolCard || ''} size={20} className="me-1 me-sm-2" />
-                              <div className="text-nowrap small">
-                                  <span className="text-secondary fw-bold d-none d-sm-inline me-1">目標:</span>
-                                  <span className="fw-bolder text-dark">#{me?.numberCard} {me?.targetWord}</span>
-                              </div>
-                          </div>
+                    <div className="d-flex align-items-center gap-2">
+                      <div className="d-flex align-items-center bg-light rounded-pill px-2 px-sm-3 py-1 shadow-sm border">
+                        <SymbolIcon
+                          symbol={me?.symbolCard || ''}
+                          size={20}
+                          className="me-1 me-sm-2"
+                        />
+                        <div className="text-nowrap small">
+                          <span className="text-secondary fw-bold d-none d-sm-inline me-1">
+                            目標:
+                          </span>
+                          <span className="fw-bolder text-dark">
+                            #{me?.numberCard} {me?.targetWord}
+                          </span>
+                        </div>
                       </div>
+                    </div>
                   )}
 
                   <div className="d-flex gap-1 ms-auto ms-sm-0">
-                      {phase === 'playing' && !me?.isDoneDrawing && (
-                          <Button variant="outline-danger" size="sm" className="rounded-pill px-2 px-sm-3 border-0 shadow-none" onClick={requestClear}>
-                              🗑️ <span className="d-none d-sm-inline">清空</span>
-                          </Button>
-                      )}
-                      {phase === 'waiting' || phase === 'round_ended' ? (
-                          isHost ? (
-                              <div className="d-flex align-items-center gap-2">
-                                  <div className="d-flex align-items-center gap-1 bg-light rounded-pill px-2 py-1">
-                                      <span className="text-muted small fw-bold me-1">Lv</span>
-                                      {levels.map((level: number) => (
-                                          <Button 
-                                              key={level}
-                                              size="sm"
-                                              variant={selectedDifficulty === level ? "primary" : "outline-secondary"}
-                                              className="rounded-circle p-0 border-0"
-                                              style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}
-                                              onClick={() => setSelectedDifficulty(level)}
-                                          >
-                                              {level}
-                                          </Button>
-                                      ))}
-                                  </div>
-                                  <Button 
-                                      variant={phase === 'waiting' ? "success" : "primary"}
-                                      size="sm" 
-                                      onClick={phase === 'waiting' ? startGame : nextRound}
-                                      disabled={phase === 'waiting' && players.length < 2}
-                                      className="rounded-pill px-3 shadow-sm text-nowrap"
-                                  >
-                                      {phase === 'waiting' ? (
-                                         <>👤 <span className="d-none d-sm-inline">2人開始</span><span className="d-inline d-sm-none">開始</span></>
-                                      ) : (
-                                         <><span className="d-none d-sm-inline">下一局</span> <ArrowRight size={14} /></>
-                                      )}
-                                  </Button>
-                              </div>
-                          ) : (
-                              <div className="d-flex align-items-center gap-2 text-muted fw-bold">
-                                  <span>⏳ 等待房主{phase === 'waiting' ? '開始遊戲' : '選擇下一局'}...</span>
-                              </div>
-                          )
-                      ) : (
-                          <Button 
-                              variant={me?.isDoneDrawing ? "secondary" : "success"}
-                              size="sm"
-                              onClick={stopDrawing}
-                              disabled={me?.isDoneDrawing}
-                              className="rounded-pill px-3 shadow-sm text-nowrap"
+                    {phase === 'playing' && !me?.isDoneDrawing && (
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        className="rounded-pill px-2 px-sm-3 border-0 shadow-none"
+                        onClick={requestClear}
+                      >
+                        🗑️ <span className="d-none d-sm-inline">清空</span>
+                      </Button>
+                    )}
+                    {phase === 'waiting' || phase === 'round_ended' ? (
+                      isHost ? (
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="d-flex align-items-center gap-1 bg-light rounded-pill px-2 py-1">
+                            <span className="text-muted small fw-bold me-1">Lv</span>
+                            {levels.map((level: number) => (
+                              <Button
+                                key={level}
+                                size="sm"
+                                variant={
+                                  selectedDifficulty === level ? 'primary' : 'outline-secondary'
+                                }
+                                className="rounded-circle p-0 border-0"
+                                style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}
+                                onClick={() => setSelectedDifficulty(level)}
+                              >
+                                {level}
+                              </Button>
+                            ))}
+                          </div>
+                          <Button
+                            variant={phase === 'waiting' ? 'success' : 'primary'}
+                            size="sm"
+                            onClick={phase === 'waiting' ? startGame : nextRound}
+                            disabled={phase === 'waiting' && players.length < 2}
+                            className="rounded-pill px-3 shadow-sm text-nowrap"
                           >
-                              {me?.isDoneDrawing ? (
-                                  <><span className="d-none d-sm-inline">已停筆</span><CheckCircle size={14} /></>
-                              ) : (
-                                  '畫好了'
-                              )}
+                            {phase === 'waiting' ? (
+                              <>
+                                👤 <span className="d-none d-sm-inline">2人開始</span>
+                                <span className="d-inline d-sm-none">開始</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="d-none d-sm-inline">下一局</span>{' '}
+                                <ArrowRight size={14} />
+                              </>
+                            )}
                           </Button>
-                      )}
+                        </div>
+                      ) : (
+                        <div className="d-flex align-items-center gap-2 text-muted fw-bold">
+                          <span>
+                            ⏳ 等待房主{phase === 'waiting' ? '開始遊戲' : '選擇下一局'}...
+                          </span>
+                        </div>
+                      )
+                    ) : (
+                      <Button
+                        variant={me?.isDoneDrawing ? 'secondary' : 'success'}
+                        size="sm"
+                        onClick={stopDrawing}
+                        disabled={me?.isDoneDrawing}
+                        className="rounded-pill px-3 shadow-sm text-nowrap"
+                      >
+                        {me?.isDoneDrawing ? (
+                          <>
+                            <span className="d-none d-sm-inline">已停筆</span>
+                            <CheckCircle size={14} />
+                          </>
+                        ) : (
+                          '畫好了'
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -251,7 +299,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
               {phase === 'round_ended' ? (
                 <RoundResultSummary players={players} />
               ) : (
-                <DrawingCanvas 
+                <DrawingCanvas
                   me={me}
                   phase={phase}
                   canvasRef={myCanvasRef}
@@ -264,7 +312,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
           </Col>
 
           <Col lg={4}>
-            <PlayerList 
+            <PlayerList
               otherPlayers={otherPlayers}
               me={me}
               phase={phase}
@@ -275,7 +323,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
         </Row>
       )}
 
-      <GuessModal 
+      <GuessModal
         show={showGuessModal}
         onHide={() => setShowGuessModal(false)}
         targetPlayer={targetPlayer}

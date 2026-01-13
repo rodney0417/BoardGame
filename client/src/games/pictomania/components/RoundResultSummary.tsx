@@ -20,25 +20,32 @@ const RoundResultSummary: React.FC<RoundResultSummaryProps> = ({ players }) => {
             </tr>
           </thead>
           <tbody>
-            {players.map(p => (
+            {players.map((p) => (
               <tr key={p.id} className="align-middle">
                 <td className="px-4 border-0">
                   <div className="d-flex align-items-center gap-2">
-                    <div style={{ width: '12px', height: '12px', backgroundColor: p.color, borderRadius: '50%' }} />
+                    <div
+                      style={{
+                        width: '12px',
+                        height: '12px',
+                        backgroundColor: p.color,
+                        borderRadius: '50%',
+                      }}
+                    />
                     <span className="fw-bold">{p.username}</span>
                   </div>
                 </td>
                 <td className="border-0">
-                  <Badge bg="light" text="dark" className="border">#{p.numberCard} {p.targetWord}</Badge>
+                  <Badge bg="light" text="dark" className="border">
+                    #{p.numberCard} {p.targetWord}
+                  </Badge>
                 </td>
                 <td className="border-0 text-center">
                   <Badge bg="info" className="rounded-pill px-3">
                     {p.guessedCorrectlyBy?.length || 0} 人
                   </Badge>
                 </td>
-                <td className="px-4 border-0 text-end fw-bolder text-primary fs-5">
-                  {p.score}
-                </td>
+                <td className="px-4 border-0 text-end fw-bolder text-primary fs-5">{p.score}</td>
               </tr>
             ))}
           </tbody>

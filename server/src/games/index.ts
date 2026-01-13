@@ -4,7 +4,7 @@ import Uno from './uno/index';
 
 const games: Record<string, GameModule> = {
   [Pictomania.id]: Pictomania,
-  [Uno.id]: Uno
+  [Uno.id]: Uno,
 };
 
 export default games;

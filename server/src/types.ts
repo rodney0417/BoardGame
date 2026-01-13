@@ -11,7 +11,7 @@ export interface Room<TState = any, TSettings = any> {
   id: string;
   players: Player[];
   gameType: string;
-  
+
   // 核心狀態
   phase: 'waiting' | 'playing' | 'round_ended' | 'game_over';
   settings: TSettings;
@@ -21,7 +21,7 @@ export interface Room<TState = any, TSettings = any> {
   timeLeft: number;
   timer?: NodeJS.Timeout | null;
   cleanupTimer?: NodeJS.Timeout | null;
-  
+
   // 上次活動時間 (用於清除閒置房間)
   lastActivity: number;
 }
@@ -37,11 +37,20 @@ export interface GameModule<TState = any, TSettings = any> {
   initPlayer: (player: Partial<Player>) => Partial<Player>;
 
   // 遊戲邏輯處理
-  handlers: Record<string, (io: Server, room: Room<TState, TSettings>, socket: Socket, data: any) => boolean>;
+  handlers: Record<
+    string,
+    (io: Server, room: Room<TState, TSettings>, socket: Socket, data: any) => boolean
+  >;
 
   // Hooks
   onStartGame?: (room: Room<TState, TSettings>) => void;
   startRound?: (room: Room<TState, TSettings>) => void;
   onTimeout?: (io: Server, room: Room<TState, TSettings>) => boolean;
-  onPlayerReconnect?: (io: Server, room: Room<TState, TSettings>, oldId: string, newId: string, socket: Socket) => void;
+  onPlayerReconnect?: (
+    io: Server,
+    room: Room<TState, TSettings>,
+    oldId: string,
+    newId: string,
+    socket: Socket,
+  ) => void;
 }

@@ -45,8 +45,8 @@ COPY --from=backend-build /shared ../shared
 COPY --from=frontend-build /app/dist ./public
 
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=8000
 
-EXPOSE 3001
+EXPOSE 8000
 
 CMD ["tsx", "src/index.ts"]

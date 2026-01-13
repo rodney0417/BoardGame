@@ -1,9 +1,9 @@
-import fs from "fs";
-import path from "path";
-import { GameModule, Player, Room } from "../../types";
-import { Server, Socket } from "socket.io";
-import { PictomaniaHistoryRecord } from "../../../../shared/types";
-import { PictomaniaRound } from "./domain";
+import fs from 'fs';
+import path from 'path';
+import { GameModule, Player, Room } from '../../types';
+import { Server, Socket } from 'socket.io';
+import { PictomaniaHistoryRecord } from '../../../../shared/types';
+import { PictomaniaRound } from './domain';
 
 // 定義 Pictomania 專屬的設定與狀態介面
 interface PictomaniaSettings {
@@ -43,10 +43,10 @@ function loadWords(): {
   wordCardsByLevel: Record<number, WordCardData[]>;
   allWordCards: WordCardData[];
 } {
-  const filePath = path.join(__dirname, "words.csv");
+  const filePath = path.join(__dirname, 'words.csv');
   try {
-    const data = fs.readFileSync(filePath, "utf8");
-    const lines = data.split("\n");
+    const data = fs.readFileSync(filePath, 'utf8');
+    const lines = data.split('\n');
     const wordCardsByLevel: Record<number, WordCardData[]> = {};
     const allWordCards: WordCardData[] = [];
 
@@ -60,7 +60,7 @@ function loadWords(): {
       if (parts) {
         const level = parseInt(parts[1]);
         const contentStr = parts[2];
-        const contents = contentStr.split(";").map((w) => w.trim());
+        const contents = contentStr.split(';').map((w) => w.trim());
 
         const card = { id: i + 1, level, contents };
         if (!wordCardsByLevel[level]) {
@@ -72,7 +72,7 @@ function loadWords(): {
     }
     return { wordCardsByLevel, allWordCards };
   } catch (e) {
-    console.error("Failed to load words:", e);
+    console.error('Failed to load words:', e);
     return { wordCardsByLevel: {}, allWordCards: [] };
   }
 }
@@ -80,15 +80,10 @@ function loadWords(): {
 // Global cache
 const { wordCardsByLevel } = loadWords();
 
-const checkAndFinishRound = (
-  io: Server,
-  room: Room<PictomaniaState, PictomaniaSettings>
-) => {
+const checkAndFinishRound = (io: Server, room: Room<PictomaniaState, PictomaniaSettings>) => {
   // Prevent double execution
-  if (room.phase !== "playing") {
-    console.warn(
-      `[Pictomania] checkAndFinishRound called but phase is ${room.phase}. Ignoring.`
-    );
+  if (room.phase !== 'playing') {
+    console.warn(`[Pictomania] checkAndFinishRound called but phase is ${room.phase}. Ignoring.`);
     return;
   }
 
@@ -97,14 +92,12 @@ const checkAndFinishRound = (
 
   // Fallback if model missing
   if (!roundModel) {
-    console.error("Round Model not found!");
+    console.error('Round Model not found!');
     return;
   }
 
   // Check if ALL players are done guessing (or disconnected)
-  const allDone = room.players.every(
-    (p) => (p as any).isDoneGuessing || p.disconnected
-  );
+  const allDone = room.players.every((p) => (p as any).isDoneGuessing || p.disconnected);
   if (!allDone) {
     return;
   }
@@ -131,9 +124,7 @@ const checkAndFinishRound = (
 
   if (roundModel) {
     allGuesses.forEach((g) => {
-      const target = room.players.find(
-        (p) => p.id === g.targetPlayerId
-      ) as PictomaniaPlayer;
+      const target = room.players.find((p) => p.id === g.targetPlayerId) as PictomaniaPlayer;
       if (target) {
         const isSymbolMatch = target.symbolCard === g.symbol;
         const isNumberMatch = Number(target.numberCard) === Number(g.number);
@@ -165,35 +156,35 @@ const checkAndFinishRound = (
       gp.guessedCorrectlyBy = history.map((h) => h.guesserId);
 
       const validHistoryEntry = room.gameState.history.find(
-        (h) => h.round === room.gameState.currentRound && h.playerId === p.id
+        (h) => h.round === room.gameState.currentRound && h.playerId === p.id,
       );
       if (validHistoryEntry) {
         (validHistoryEntry as any).guessedBy = history;
       }
     });
   } else {
-    console.error("Round Model not found!");
+    console.error('Round Model not found!');
   }
 
   if (room.gameState.currentRound >= room.settings.totalRounds) {
-    room.phase = "game_over";
+    room.phase = 'game_over';
   } else {
-    room.phase = "round_ended";
+    room.phase = 'round_ended';
   }
-  io.to(room.id).emit("room_data", room);
-  io.to(room.id).emit("toast", {
-    type: "info",
+  io.to(room.id).emit('room_data', room);
+  io.to(room.id).emit('toast', {
+    type: 'info',
     message: `第 ${room.gameState.currentRound} 回合結束！公佈答案中...`,
   });
-  io.to(room.id).emit("request_round_images", {
+  io.to(room.id).emit('request_round_images', {
     round: room.gameState.currentRound,
   });
 };
 
 const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
-  id: "pictomania",
-  name: "妙筆神猜",
-  icon: "🎨",
+  id: 'pictomania',
+  name: '妙筆神猜',
+  icon: '🎨',
   maxPlayers: 6,
   defaultSettings: {
     drawTime: 60,
@@ -205,7 +196,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     return {
       score: 0,
       isDoneDrawing: false,
-      symbolCard: "",
+      symbolCard: '',
       numberCard: -1,
       targetWord: null,
       guessedCorrectlyBy: [] as string[],
@@ -247,12 +238,12 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
   },
 
   startRound: (room: Room<PictomaniaState, PictomaniaSettings>) => {
-    room.phase = "playing";
+    room.phase = 'playing';
     room.timeLeft = room.settings.drawTime;
 
     console.log(
       `[Pictomania] Starting round ${room.gameState.currentRound}. Players:`,
-      room.players.map((p) => ({ id: p.id, username: p.username }))
+      room.players.map((p) => ({ id: p.id, username: p.username })),
     );
 
     // Initialize Domain Model for this round
@@ -266,7 +257,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     const availableCards = wordCardsByLevel[level] || wordCardsByLevel[1] || [];
 
     // We need 6 cards for the 6 symbols (star, triangle, square, circle, cloud, moon)
-    const symbols = ["star", "triangle", "square", "circle", "cloud", "moon"];
+    const symbols = ['star', 'triangle', 'square', 'circle', 'cloud', 'moon'];
 
     // Fisher-Yates Shuffle for selecting random cards
     const shuffle = <T>(array: T[]): T[] => {
@@ -278,16 +269,10 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
       return newArr;
     };
 
-    const activeSymbols = symbols.slice(
-      0,
-      Math.min(symbols.length, availableCards.length)
-    );
+    const activeSymbols = symbols.slice(0, Math.min(symbols.length, availableCards.length));
 
     // Randomly pick 'activeSymbols.length' cards from availableCards and map to symbols
-    const shuffledCards = shuffle([...availableCards]).slice(
-      0,
-      activeSymbols.length
-    );
+    const shuffledCards = shuffle([...availableCards]).slice(0, activeSymbols.length);
     const roundWordCards: Record<string, string[]> = {};
     activeSymbols.forEach((sym, idx) => {
       roundWordCards[sym] = shuffledCards[idx].contents;
@@ -311,14 +296,13 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         player.numberCard = assignment.number;
 
         if (roundWordCards[player.symbolCard]) {
-          player.targetWord =
-            roundWordCards[player.symbolCard][player.numberCard - 1];
+          player.targetWord = roundWordCards[player.symbolCard][player.numberCard - 1];
         } else {
-          player.targetWord = "未知";
+          player.targetWord = '未知';
         }
       } else {
         console.error(`No assignment found for player ${player.id}`);
-        player.targetWord = "錯誤";
+        player.targetWord = '錯誤';
       }
 
       // Reset State
@@ -330,10 +314,10 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
   },
 
   onTimeout: (io, room) => {
-    if (room.phase !== "playing") return true;
+    if (room.phase !== 'playing') return true;
     room.players.forEach((p) => (p.isDoneDrawing = true));
-    io.to(room.id).emit("toast", {
-      type: "info",
+    io.to(room.id).emit('toast', {
+      type: 'info',
       message: `⏰ 時間到！請把握時間猜題，所有人都猜完後將結束回合。`,
     });
     return true;
@@ -344,13 +328,13 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
       io: Server,
       room: Room<PictomaniaState, PictomaniaSettings>,
       socket: Socket,
-      data: any
+      data: any,
     ) => {
-      if (room.phase === "waiting" || room.phase === "game_over") {
+      if (room.phase === 'waiting' || room.phase === 'game_over') {
         if (room.players.length < 2) {
-          socket.emit("toast", {
-            type: "error",
-            message: "❌ 至少需要 2 人才能開始遊戲",
+          socket.emit('toast', {
+            type: 'error',
+            message: '❌ 至少需要 2 人才能開始遊戲',
           });
           return false;
         }
@@ -362,19 +346,19 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         }
 
         if (Pictomania.onStartGame) Pictomania.onStartGame(room);
-        io.to(room.id).emit("game_started", {
+        io.to(room.id).emit('game_started', {
           cards: room.gameState.wordCards,
         });
-      } else if (room.phase === "round_ended") {
+      } else if (room.phase === 'round_ended') {
         if (room.gameState.currentRound < room.settings.totalRounds) {
           room.gameState.currentRound++;
           if (Pictomania.startRound) Pictomania.startRound(room);
-          io.to(room.id).emit("game_started", {
+          io.to(room.id).emit('game_started', {
             cards: room.gameState.wordCards,
           });
         } else {
-          room.phase = "game_over";
-          io.to(room.id).emit("room_data", room);
+          room.phase = 'game_over';
+          io.to(room.id).emit('room_data', room);
         }
       }
       return true;
@@ -382,7 +366,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
 
     next_round: (io, room, socket, data) => {
       // logic moved to start_game or handled here by passing data
-      return Pictomania.handlers["start_game"](io, room, socket, data);
+      return Pictomania.handlers['start_game'](io, room, socket, data);
     },
 
     player_finish_drawing: (io, room, socket, data) => {
@@ -391,9 +375,9 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         player.isDoneDrawing = true;
         const allDone = room.players.every((p) => p.isDoneDrawing);
         if (allDone) {
-          io.to(room.id).emit("toast", {
-            type: "info",
-            message: "🎨 所有人都畫完了，請把握時間猜題！",
+          io.to(room.id).emit('toast', {
+            type: 'info',
+            message: '🎨 所有人都畫完了，請把握時間猜題！',
           });
         }
       }
@@ -401,9 +385,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     },
 
     player_finish_guessing: (io, room, socket, data) => {
-      const player = room.players.find(
-        (p) => p.id === socket.id
-      ) as PictomaniaPlayer;
+      const player = room.players.find((p) => p.id === socket.id) as PictomaniaPlayer;
       if (player) {
         player.isDoneGuessing = true;
         checkAndFinishRound(io, room);
@@ -412,29 +394,25 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     },
 
     guess_word: (io, room, socket, data) => {
-      if (room.phase !== "playing") return false;
+      if (room.phase !== 'playing') return false;
 
       const { guesserId, targetPlayerId, symbol, number } = data;
-      const targetPlayer = room.players.find(
-        (p) => p.id === targetPlayerId
-      ) as PictomaniaPlayer;
-      const guesser = room.players.find(
-        (p) => p.id === guesserId
-      ) as PictomaniaPlayer;
+      const targetPlayer = room.players.find((p) => p.id === targetPlayerId) as PictomaniaPlayer;
+      const guesser = room.players.find((p) => p.id === guesserId) as PictomaniaPlayer;
 
       if (targetPlayer && guesser) {
         if (!guesser.isDoneDrawing) {
-          socket.emit("toast", {
-            type: "error",
-            message: "⚠️ 您必須先點擊「畫好了」才能開始猜題！",
+          socket.emit('toast', {
+            type: 'error',
+            message: '⚠️ 您必須先點擊「畫好了」才能開始猜題！',
           });
           return false;
         }
 
         if (guesser.isDoneGuessing) {
-          socket.emit("toast", {
-            type: "error",
-            message: "⚠️ 您已經結束猜題，無法再猜！",
+          socket.emit('toast', {
+            type: 'error',
+            message: '⚠️ 您已經結束猜題，無法再猜！',
           });
           return false;
         }
@@ -447,7 +425,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
             // We verified in domain.test that setGuess updates if same target.
             roundModel.setGuess(guesserId, targetPlayerId, number);
           } catch (e: any) {
-            socket.emit("toast", { type: "error", message: `⚠️ ${e.message}` });
+            socket.emit('toast', { type: 'error', message: `⚠️ ${e.message}` });
             return false;
           }
         }
@@ -457,9 +435,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         const pIndex = room.players.findIndex((p) => p.id === guesserId);
         if (pIndex !== -1) {
           const p = room.players[pIndex] as PictomaniaPlayer;
-          p.myGuesses = (p.myGuesses || []).filter(
-            (g) => g.targetPlayerId !== targetPlayerId
-          );
+          p.myGuesses = (p.myGuesses || []).filter((g) => g.targetPlayerId !== targetPlayerId);
           p.myGuesses.push({
             targetPlayerId,
             symbol,
@@ -469,12 +445,9 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
         }
 
         // Auto-Finish Guessing Check: If player has guessed ALL other players
-        const uniqueTargets = new Set(
-          guesser.myGuesses.map((g) => g.targetPlayerId)
-        );
+        const uniqueTargets = new Set(guesser.myGuesses.map((g) => g.targetPlayerId));
         // Count active players (exclude self)
-        const totalTargets =
-          room.players.filter((p) => !p.disconnected).length - 1;
+        const totalTargets = room.players.filter((p) => !p.disconnected).length - 1;
 
         if (uniqueTargets.size >= totalTargets && totalTargets > 0) {
           guesser.isDoneGuessing = true;
@@ -488,14 +461,11 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
 
     upload_image: (io, room, socket, data) => {
       const { imageBase64 } = data;
-      const player = room.players.find(
-        (p) => p.id === socket.id
-      ) as PictomaniaPlayer;
+      const player = room.players.find((p) => p.id === socket.id) as PictomaniaPlayer;
 
       if (player && room.gameState.history) {
         const exists = room.gameState.history.some(
-          (r) =>
-            r.round === room.gameState.currentRound && r.playerId === player.id
+          (r) => r.round === room.gameState.currentRound && r.playerId === player.id,
         );
         if (!exists) {
           room.gameState.history.push({
@@ -503,15 +473,15 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
             playerId: player.id,
             playerName: player.username,
             playerColor: player.color,
-            word: player.targetWord || "未知",
+            word: player.targetWord || '未知',
             imageBase64: imageBase64,
           });
-          io.to(room.id).emit("update_canvas", {
+          io.to(room.id).emit('update_canvas', {
             playerId: player.id,
             imageBase64,
           });
           console.log(
-            `[Pictomania] 收到 ${player.username} 第 ${room.gameState.currentRound} 回合的畫作並廣播`
+            `[Pictomania] 收到 ${player.username} 第 ${room.gameState.currentRound} 回合的畫作並廣播`,
           );
         }
       }
