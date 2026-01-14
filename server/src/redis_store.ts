@@ -1,27 +1,22 @@
 import Redis from 'ioredis';
 import { Room } from './types';
-import games from './games';
 import { PictomaniaRound } from './games/pictomania/domain';
 import { UnoRound } from './games/uno/domain';
 
-// Check environment variables or default to localhost
+const REDIS_URL = process.env.REDIS_URL || '';
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 
 console.log(`[Redis] Setup - Env REDIS_HOST: '${process.env.REDIS_HOST}'`);
 console.log(`[Redis] Setup - Final Connection Target: ${REDIS_HOST}:${REDIS_PORT}`);
 
-const redis = new Redis({
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  retryStrategy: (times) => {
-    // Retry limited times then stop to allow server to run in memory-only mode if needed?
-    // Or keep retrying? Persistence is critical, so we log.
-    const delay = Math.min(times * 50, 2000);
-    return delay;
-  },
-  lazyConnect: true, // Don't connect immediately on instantiation
-});
+const redis = REDIS_URL 
+  ? new Redis(REDIS_URL, { lazyConnect: true }) 
+  : new Redis({
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+      lazyConnect: true,
+    });
 
 redis.on('error', (err) => {
   // Suppress connection refused logs if running locally without redis
