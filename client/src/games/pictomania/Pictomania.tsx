@@ -36,6 +36,8 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
   const [targetPlayer, setTargetPlayer] = useState<PictomaniaPlayer | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<number>(1);
+  const [selectedDrawTime, setSelectedDrawTime] = useState<number>(60);
+  const drawTimes = [30, 45, 60, 90];
 
   const myCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRefs = useRef<Record<string, HTMLCanvasElement | null>>({});
@@ -124,8 +126,8 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
     };
   }, [socket, roomId]);
 
-  const startGame = () => socket.emit('start_game', { roomId, difficulty: selectedDifficulty });
-  const nextRound = () => socket.emit('next_round', { roomId, difficulty: selectedDifficulty });
+  const startGame = () => socket.emit('start_game', { roomId, difficulty: selectedDifficulty, drawTime: selectedDrawTime });
+  const nextRound = () => socket.emit('next_round', { roomId, difficulty: selectedDifficulty, drawTime: selectedDrawTime });
   const stopDrawing = () => socket.emit('player_finish_drawing', roomId);
   const requestClear = () => {
     myCanvasRef.current?.getContext('2d')?.clearRect(0, 0, 1200, 800);
@@ -156,22 +158,46 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   const otherPlayers = players.filter((p: PictomaniaPlayer) => p.id !== me.id);
 
-  // Difficulty Selector for host
-  const difficultySelector = (
-    <div className="d-flex align-items-center justify-content-center gap-2">
-      <span className="text-muted small fw-bold">難度：</span>
-      {levels.map((level: number) => (
-        <Button
-          key={level}
-          size="sm"
-          variant={selectedDifficulty === level ? 'primary' : 'outline-secondary'}
-          className="rounded-circle p-0"
-          style={{ width: '32px', height: '32px' }}
-          onClick={() => setSelectedDifficulty(level)}
-        >
-          {level}
-        </Button>
-      ))}
+  // Host Controls
+  const hostControls = (
+    <div className="d-flex flex-column gap-3">
+      {/* Difficulty */}
+      <div className="d-flex align-items-center justify-content-between">
+        <span className="text-muted small fw-bold">難度等級</span>
+        <div className="d-flex gap-2">
+          {levels.map((level: number) => (
+            <Button
+              key={level}
+              size="sm"
+              variant={selectedDifficulty === level ? 'primary' : 'outline-secondary'}
+              className="rounded-circle p-0 fw-bold"
+              style={{ width: '30px', height: '30px' }}
+              onClick={() => setSelectedDifficulty(level)}
+            >
+              {level}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Draw Time */}
+      <div className="d-flex align-items-center justify-content-between">
+        <span className="text-muted small fw-bold">繪畫時間</span>
+        <div className="d-flex gap-2">
+          {drawTimes.map((time: number) => (
+            <Button
+              key={time}
+              size="sm"
+              variant={selectedDrawTime === time ? 'success' : 'outline-secondary'}
+              className="rounded-pill px-2 fw-bold"
+              style={{ minWidth: '45px' }}
+              onClick={() => setSelectedDrawTime(time)}
+            >
+              {time}s
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 
@@ -183,7 +209,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
         myId={me.id}
         isHost={isHost}
         onStartGame={startGame}
-        hostControls={difficultySelector}
+        hostControls={hostControls}
       />
     );
   }

@@ -12,7 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) =>
     <BSNavbar className="border-0 py-3" style={{ background: 'rgba(245, 240, 235, 0.95)', backdropFilter: 'blur(10px)' }}>
       <Container>
         <BSNavbar.Brand className="fw-bold fs-4" style={{ color: '#4a4a4a' }}>
-          🎮 BoardGame Hub
+          🪐 萬遊引力
         </BSNavbar.Brand>
         
         <div className="d-flex align-items-center gap-3">
