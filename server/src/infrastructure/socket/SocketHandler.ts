@@ -206,8 +206,8 @@ export class SocketHandler {
         const shouldUpdate = game.handlers[eventName](this.io, room, socket, data);
         
         if (shouldUpdate) {
-            // Timer Logic: Start if playing, Stop otherwise
-            if (room.phase === 'playing') {
+            // Timer Logic: Start if playing and room has time limit, Stop otherwise
+            if (room.phase === 'playing' && (room.timeLeft > 0)) {
                 this.timerService.startRoomTimer(room, (id) => this.broadcastRoomData(id));
             } else {
                 this.timerService.stopRoomTimer(room.id);

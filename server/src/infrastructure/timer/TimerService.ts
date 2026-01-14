@@ -12,7 +12,7 @@ export class TimerService {
   }
 
   public startRoomTimer(room: Room, broadcastCallback: (roomId: string) => void) {
-    if (this.roomTimers[room.id]) clearInterval(this.roomTimers[room.id]);
+    if (this.roomTimers[room.id]) return; // Timer already running, don't reset
 
     if (room.timeLeft <= 0) return;
 
