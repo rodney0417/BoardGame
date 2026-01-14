@@ -59,7 +59,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
           <Col xs={12} lg={4} xl={3}>
             {/* Desktop Sticky Sidebar */}
             <div className="sticky-lg-top" style={{ top: '20px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto' }}>
-              <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column">
                 {sidebar}
               </div>
             </div>

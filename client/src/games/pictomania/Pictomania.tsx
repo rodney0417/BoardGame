@@ -278,8 +278,8 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
   }
 
   const gameInfoSection = (
-    <SidebarSection title="遊戲資訊">
-      <div className="d-flex d-lg-block gap-2 flex-wrap">
+    <SidebarSection>
+      <div className="d-flex d-lg-block flex-wrap">
         <SidebarStat 
            label="目前回合" 
            value={`${currentRound} / 5`} 
