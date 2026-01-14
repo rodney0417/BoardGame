@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-export const SidebarSection: React.FC<{ title: string; children: React.ReactNode; isHost?: boolean }> = ({ title, children, isHost }) => (
-  <div className="mb-4">
+export const SidebarSection: React.FC<{ title: string; children: React.ReactNode; isHost?: boolean; className?: string }> = ({ title, children, isHost, className = "" }) => (
+  <div className={`mb-4 ${className}`}>
     <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
       <h6 className="text-muted small fw-bold m-0">{title}</h6>
       {isHost && <span className="badge bg-dark-subtle text-dark-emphasis border fw-normal" style={{ fontSize: '0.6rem' }}>房主控制</span>}

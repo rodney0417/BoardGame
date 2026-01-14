@@ -143,6 +143,12 @@ export class SocketHandler {
       }
 
       socket.join(roomId);
+
+      // Re-trigger timer if re-joining during playing phase and timer is not running
+      if (room.phase === 'playing' && room.timeLeft > 0) {
+          this.timerService.startRoomTimer(room, (id) => this.broadcastRoomData(id));
+      }
+
       this.roomService.saveRoom(room);
       this.broadcastRoomData(roomId);
       this.io.emit('room_list', this.getRoomList());
