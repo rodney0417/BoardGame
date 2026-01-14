@@ -1,0 +1,19 @@
+.navbarMain {
+  background: rgba(180, 166, 155, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border: 0;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
+.brand {
+  color: #4a4a4a !important;
+}
+
+.roomBadge {
+  background-color: rgba(255, 255, 255, 0.75);
+  line-height: 1.1;
+}
+
+.roomId {
+  font-size: 1rem;
+}

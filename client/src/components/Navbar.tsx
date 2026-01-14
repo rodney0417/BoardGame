@@ -7,19 +7,22 @@ interface NavbarProps {
   onLeaveRoom?: () => void;
 }
 
+import styles from './Navbar.module.css';
+
 const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) => {
   return (
-    <BSNavbar className="border-0 py-3 shadow-sm" style={{ background: 'rgba(180, 166, 155, 0.95)', backdropFilter: 'blur(10px)' }}>
+    <BSNavbar fixed="top" className={`py-3 ${styles.navbarMain}`}>
       <Container>
-        <BSNavbar.Brand className="fw-bold fs-4" style={{ color: '#4a4a4a' }}>
+        <BSNavbar.Brand className={`fw-bold fs-4 ${styles.brand}`}>
           🪐 萬遊引力
         </BSNavbar.Brand>
         
         <div className="d-flex align-items-center gap-3">
           {roomId && (
-            <span className="small text-muted">
-              房間: <span className="fw-medium">{roomId}</span>
-            </span>
+            <div className={`d-flex align-items-center px-3 py-2 rounded-pill shadow-sm ${styles.roomBadge}`}>
+              <span className="me-2 fs-5 d-flex align-items-center" style={{ height: '24px', transform: 'translateY(-2px)' }}>🏠</span>
+              <span className={`fw-bold text-dark ${styles.roomId}`}>{roomId}</span>
+            </div>
           )}
           
           {onCreateRoom && !roomId && (
@@ -35,8 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) =>
           {onLeaveRoom && roomId && (
             <Button
               variant="outline-danger"
-              size="sm"
-              className="rounded-pill px-3"
+              className="rounded-pill px-3 py-2"
               onClick={onLeaveRoom}
             >
               離開房間

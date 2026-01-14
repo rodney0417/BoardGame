@@ -126,7 +126,7 @@ function App() {
 
   if (isCheckingAuth) {
     return (
-      <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+      <Container className="flex-grow-1 d-flex flex-column align-items-center justify-content-center pt-5 mt-5" style={{ minHeight: '100vh' }}>
         <div className="text-center">
           <div className="spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
             <span className="visually-hidden">Loading...</span>
@@ -142,7 +142,7 @@ function App() {
   }
 
   return (
-    <div className="App" style={{ minHeight: '100vh', paddingBottom: '40px' }}>
+    <div className="App" style={{ minHeight: '100vh', paddingBottom: '40px', paddingTop: '100px' }}>
       <Navbar 
         roomId={appState === 'room' ? `${activeRoom?.gameName || '未知'}` : undefined}
         onCreateRoom={appState === 'lobby' ? () => setShowCreateModal(true) : undefined}
