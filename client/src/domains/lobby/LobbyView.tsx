@@ -5,7 +5,10 @@ import { RoomListInfo } from '../../types';
 import { GAME_CONFIG, GameType } from '../../games/shared/gameConfig';
 import GameLayout from '../../games/shared/GameLayout';
 
+import PlayerAvatar from '../../games/shared/PlayerAvatar';
+
 interface LobbyViewProps {
+  username: string;
   roomList: RoomListInfo[];
   onJoinRoom: (roomId: string, gameType: string) => void;
   showCreateModal: boolean;
@@ -14,6 +17,7 @@ interface LobbyViewProps {
 }
 
 const LobbyView: React.FC<LobbyViewProps> = ({ 
+  username,
   roomList, 
   onJoinRoom, 
   showCreateModal, 
@@ -31,32 +35,41 @@ const LobbyView: React.FC<LobbyViewProps> = ({
   };
 
   const sidebarContent = (
-      <Card className="border-0 shadow-sm rounded-4 h-100 bg-white">
-          <Card.Body className="p-4 d-flex flex-column">
-              <div className="d-flex align-items-center gap-3 mb-4">
-                  <div className="bg-dark text-white p-2 rounded-3">
-                      <Gamepad2 size={24} />
-                  </div>
-                  <div>
-                      <h4 className="fw-bold m-0">遊戲大廳</h4>
-                      <div className="small text-muted">{roomList.length} 個房間</div>
-                  </div>
-              </div>
+      <div className="d-flex flex-column gap-3 h-100">
+          <Card className="border-0 shadow-sm rounded-4 bg-white">
+              <Card.Body className="p-3">
+                  <div className="text-muted small fw-bold mb-2 ps-2">個人資訊</div>
+                  <PlayerAvatar username={username} showScore={false} />
+              </Card.Body>
+          </Card>
 
-               <p className="text-secondary small mb-4">
-                  歡迎來到桌遊大廳！選擇一個房間加入，或是創建您自己的遊戲。
-              </p>
+          <Card className="border-0 shadow-sm rounded-4 flex-grow-1 bg-white">
+              <Card.Body className="p-4 d-flex flex-column">
+                  <div className="d-flex align-items-center gap-3 mb-4">
+                      <div className="bg-dark text-white p-2 rounded-3">
+                          <Gamepad2 size={24} />
+                      </div>
+                      <div>
+                          <h4 className="fw-bold m-0">遊戲大廳</h4>
+                          <div className="small text-muted">{roomList.length} 個房間</div>
+                      </div>
+                  </div>
 
-              <Button 
-                  variant="dark" 
-                  size="lg" 
-                  className="w-100 rounded-pill shadow-sm py-3 fw-bold mt-auto d-flex align-items-center justify-content-center gap-2"
-                  onClick={onCreateModalOpen}
-              >
-                  <Plus size={20} /> 創建房間
-              </Button>
-          </Card.Body>
-      </Card>
+                   <p className="text-secondary small mb-4">
+                      歡迎來到桌遊大廳！選擇一個房間加入，或是創建您自己的遊戲。
+                  </p>
+
+                  <Button 
+                      variant="dark" 
+                      size="lg" 
+                      className="w-100 rounded-pill shadow-sm py-3 fw-bold mt-auto d-flex align-items-center justify-content-center gap-2"
+                      onClick={onCreateModalOpen}
+                  >
+                      <Plus size={20} /> 創建房間
+                  </Button>
+              </Card.Body>
+          </Card>
+      </div>
   );
 
   const mainContent = (

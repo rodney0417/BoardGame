@@ -37,6 +37,9 @@ export interface UnoState {
   direction: number;
   deckSize: number;
   hasDrawnThisTurn?: boolean;
+  winner?: string;
+  roundWinner?: string;
+  roundPoints?: number;
 }
 
 export type UnoPhase = 'waiting' | 'playing' | 'game_over';

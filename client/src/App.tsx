@@ -183,6 +183,7 @@ function App() {
 
       {appState === 'lobby' ? (
         <LobbyView 
+          username={username || ''}
           roomList={roomList} 
           onJoinRoom={handleJoinRoom} 
           showCreateModal={showCreateModal} 

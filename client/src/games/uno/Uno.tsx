@@ -1,8 +1,9 @@
 import { getUnoColorHex } from './constants';
-// ... existing imports ...
+import { useGameRoom } from '../shared/hooks/useGameRoom';
+import { SidebarSection, SidebarStat } from '../shared/components/SidebarModules';
 import { Socket } from 'socket.io-client';
 import { Button, Card, Row, Col } from 'react-bootstrap';
-import { UnoCard as UnoCardType, UnoPlayer, CardColor } from './types';
+import { UnoCard as UnoCardType, UnoPlayer, CardColor, UnoState } from './types';
 import UnoCardComponent from './components/UnoCard';
 import PlayerHand from './components/PlayerHand';
 import ColorPicker from './components/ColorPicker';
@@ -18,12 +19,21 @@ interface UnoProps {
   onLeaveRoom: () => void;
 }
 
-const Uno: React.FC<UnoProps> = ({ socket, room, me, onLeaveRoom }) => {
+const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom }) => {
+  const { 
+    roomId, 
+    gameState, 
+    phase, 
+    players, 
+    me, 
+    isHost, 
+    otherPlayers 
+  } = useGameRoom<UnoState, any, UnoPlayer>(room, myInitialInfo.id);
+
   const [hand, setHand] = useState<UnoCardType[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [pendingCard, setPendingCard] = useState<UnoCardType | null>(null);
 
-  const { gameState, players, phase } = room;
   const [unoEffect, setUnoEffect] = useState<{ visible: boolean; username: string }>({
     visible: false,
     username: '',
@@ -154,54 +164,32 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me, onLeaveRoom }) => {
 
   const sidebarContent = (
       <>
-        <div className="d-flex flex-column gap-3 mb-4">
-             <h5 className="m-0 fw-bold text-secondary border-bottom pb-2">遊戲狀態</h5>
-             
-             <div className="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 shadow-sm border">
-                <span className="text-muted small fw-bold">Active Color</span>
+        <SidebarSection title="遊戲狀態">
+           <SidebarStat 
+              label="目前顏色" 
+              value={activeColor || '無'} 
+              icon={
                 <div
-                  className="d-flex align-items-center justify-content-center px-1 py-1 rounded-circle shadow-sm bg-white"
-                  style={{ width: '36px', height: '36px', border: '1px solid #e2e8f0' }}
-                  title={`Current Color: ${activeColor}`}
-                >
-                  <div
-                    style={{
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                    backgroundColor: getUnoColorHex(activeColor),
-                    }}
-                  />
-                </div>
-             </div>
-
-             <div className="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 shadow-sm border">
-                <span className="text-muted small fw-bold">Direction</span>
-                <div
-                  className="d-flex align-items-center justify-content-center text-primary bg-white shadow-sm"
                   style={{
-                    width: '36px',
-                    height: '36px',
+                    width: '16px',
+                    height: '16px',
                     borderRadius: '50%',
-                    transform: direction === -1 ? 'scaleX(-1)' : 'none',
-                    transition: 'transform 0.3s ease',
+                    backgroundColor: getUnoColorHex(activeColor),
                   }}
-                  title={`Direction: ${direction === 1 ? 'Clockwise' : 'Counter-Clockwise'}`}
-                >
-                  <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>↻</span>
-                </div>
-             </div>
-
-             <div className="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 shadow-sm border">
-                <span className="text-muted small fw-bold">Deck</span>
-                <div
-                  className="d-flex align-items-center gap-2 bg-white px-3 py-1 rounded-pill border"
-                >
-                  <span style={{ fontSize: '1rem' }}>🎴</span>
-                  <span className="fw-bold text-dark small">{deckSize}</span>
-                </div>
-             </div>
-        </div>
+                />
+              }
+           />
+           <SidebarStat 
+              label="出牌方向" 
+              value={direction === 1 ? '順時針' : '逆時針'} 
+              icon={<span style={{ transform: direction === -1 ? 'scaleX(-1)' : 'none', display: 'inline-block' }}>↻</span>}
+           />
+           <SidebarStat 
+              label="牌堆剩餘" 
+              value={deckSize || 0} 
+              icon="🎴" 
+           />
+        </SidebarSection>
 
         <div className="mt-auto pt-4">
             <Button 

@@ -17,6 +17,8 @@ import GameLayout from '../shared/GameLayout';
 
 import { PictomaniaPlayer, PictomaniaPhase, PictomaniaState } from './types';
 import { PICTOMANIA_LEVELS, PICTOMANIA_DRAW_TIMES, PICTOMANIA_CANVAS_WIDTH, PICTOMANIA_CANVAS_HEIGHT } from './constants';
+import { useGameRoom } from '../shared/hooks/useGameRoom';
+import { SidebarSection, SidebarStat, HostSettingControl } from '../shared/components/SidebarModules';
 
 interface PictomaniaSettings {
   difficulty: number;
@@ -31,16 +33,22 @@ interface PictomaniaProps {
   onLeaveRoom: () => void;
 }
 
-const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me, onLeaveRoom }) => {
-  const roomId = room.id;
-  const gameState = room.gameState;
-  const phase = room.phase as PictomaniaPhase;
-  const players = room.players as PictomaniaPlayer[];
-  const timeLeft = room.timeLeft;
+const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom }) => {
+  const { 
+    roomId, 
+    gameState, 
+    phase, 
+    players, 
+    me, 
+    isHost, 
+    otherPlayers, 
+    settings, 
+    timeLeft 
+  } = useGameRoom<PictomaniaState, PictomaniaSettings>(room, myInitialInfo.id);
+
   const { currentRound = 1, wordCards: cards = {}, history = [] } = (gameState || {}) as any;
 
   const levels = PICTOMANIA_LEVELS;
-  const isHost = players.length > 0 && players[0].id === me.id;
 
   const [showGuessModal, setShowGuessModal] = useState(false);
   const [targetPlayer, setTargetPlayer] = useState<PictomaniaPlayer | null>(null);
@@ -202,10 +210,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me, onLeaveRoom }
     }
   };
 
-  const otherPlayers = players.filter((p: PictomaniaPlayer) => p.id !== me.id);
-
   // Derived State (Server Authority)
-  const settings = room.settings as any;
   const currentDifficulty = settings?.difficulty || 1;
   const currentDrawTime = settings?.drawTime || 60;
 
@@ -224,47 +229,23 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me, onLeaveRoom }
 
   // Host Controls
   const hostControls = (
-    <div className="d-flex flex-column gap-3">
-      {/* Difficulty */}
-      <div className="d-flex align-items-center justify-content-between">
-        <span className="text-muted small fw-bold">難度等級</span>
-        <div className="d-flex gap-2">
-          {levels.map((level: number) => (
-            <Button
-              key={level}
-              size="sm"
-              variant={currentDifficulty === level ? 'primary' : 'outline-secondary'}
-              className="rounded-circle p-0 fw-bold"
-              style={{ width: '30px', height: '30px', cursor: isHost ? 'pointer' : 'default' }}
-              onClick={() => isHost && updateSetting('difficulty', level)}
-              disabled={!isHost && currentDifficulty !== level}
-            >
-              {level}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Draw Time */}
-      <div className="d-flex align-items-center justify-content-between">
-        <span className="text-muted small fw-bold">繪畫時間</span>
-        <div className="d-flex gap-2">
-          {drawTimes.map((time: number) => (
-            <Button
-              key={time}
-              size="sm"
-              variant={currentDrawTime === time ? 'success' : 'outline-secondary'}
-              className="rounded-pill px-2 fw-bold"
-              style={{ minWidth: '45px', cursor: isHost ? 'pointer' : 'default' }}
-              onClick={() => isHost && updateSetting('drawTime', time)}
-              disabled={!isHost && currentDrawTime !== time}
-            >
-              {time}s
-            </Button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <SidebarSection title="遊戲設定" isHost={isHost}>
+      <HostSettingControl 
+        label="難度等級" 
+        options={[...PICTOMANIA_LEVELS]} 
+        currentValue={currentDifficulty} 
+        onSelect={(val) => updateSetting('difficulty', val)} 
+        isHost={isHost} 
+      />
+      <HostSettingControl 
+        label="繪畫時間" 
+        options={[...PICTOMANIA_DRAW_TIMES]} 
+        currentValue={currentDrawTime} 
+        onSelect={(val) => updateSetting('drawTime', val)} 
+        isHost={isHost}
+        unit="s"
+      />
+    </SidebarSection>
   );
 
   if (phase === 'waiting') {
@@ -300,15 +281,20 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me, onLeaveRoom }
 
   const sidebarContent = (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="m-0 fw-bold text-secondary">遊戲資訊</h5>
-        <div className="d-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm border">
-            <span className="small text-muted me-2">Round</span>
-            <span className="fw-bold fs-5 text-dark">{currentRound}</span>
-            <span className="small text-muted mx-1">/</span>
-            <span className="small text-muted">5</span>
-        </div>
-      </div>
+      <SidebarSection title="遊戲資訊">
+        <SidebarStat 
+           label="目前回合" 
+           value={`${currentRound} / 5`} 
+           icon="🏁" 
+        />
+        {phase === 'playing' && (
+           <SidebarStat 
+              label="剩餘時間" 
+              value={`${timeLeft}s`} 
+              icon="⏱️" 
+           />
+        )}
+      </SidebarSection>
 
       <PlayerList
          otherPlayers={otherPlayers}

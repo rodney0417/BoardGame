@@ -75,9 +75,22 @@ client/src/
 
 ---
 
-## 🎨 遊戲模組化標準 (Client Standards)
+為了保持體驗一致，請務必遵循以下開發模式與共用模組：
 
-為了保持體驗一致，請務必使用以下共用模組：
+### 0. 統籌數據提取 (`useGameRoom`)
+
+所有遊戲主組件應優先使用 `useGameRoom` Hook 來解析 `RoomDTO`。這能確保：
+
+- 統一判斷誰是「我」(`me`) 和誰是「房主」(`isHost`)。
+- 統一解析泛型類型的 `gameState` 和 `settings`。
+
+```tsx
+const { roomId, gameState, phase, players, me, isHost, otherPlayers } = useGameRoom<
+  MyState,
+  MySettings,
+  MyPlayer
+>(room, myInitialInfo.id);
+```
 
 ### 1. 遊戲設定 (`gameConfig.ts`)
 
@@ -155,6 +168,18 @@ if (phase === 'game_over') {
   ```tsx
   <PlayerAvatar username="Rodney" score={100} isTurn={true} />
   ```
+- **`useGameRoom` Hook**：統一提取遊戲房間狀態的 Hook。
+  ```tsx
+  const { me, players, isHost, gameState, phase, timeLeft } = useGameRoom<
+    GameState,
+    Settings,
+    PlayerType
+  >(room, myPeerId);
+  ```
+- **側邊欄模組 (`SidebarModules.tsx`)**：
+  - `<SidebarSection>`: 側邊欄標題分組。
+  - `<SidebarStat>`: 數值/狀態顯示小卡。
+  - `<HostSettingControl>`: 房主專用的切換按鈕組。
 
 ---
 
