@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Button, Modal, Form, Card } from 'react-bootstrap';
 import { Plus, Users, Gamepad2 } from 'lucide-react';
 import { RoomListInfo } from '../../types';
@@ -26,6 +26,13 @@ const LobbyView: React.FC<LobbyViewProps> = ({
 }) => {
   const [selectedGame, setSelectedGame] = useState<GameType>('pictomania');
   const [createRoomName, setCreateRoomName] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleCreateRoom = () => {
     if (!createRoomName) return;
@@ -35,37 +42,43 @@ const LobbyView: React.FC<LobbyViewProps> = ({
   };
 
   const sidebarContent = (
-      <div className="d-flex flex-column gap-3 h-100">
-          <Card className="border-0 shadow-sm rounded-4 bg-white">
-              <Card.Body className="p-3">
-                  <div className="text-muted small fw-bold mb-2 ps-2">個人資訊</div>
-                  <PlayerAvatar username={username} showScore={false} />
+      <div className="d-flex flex-row flex-md-column gap-2 gap-md-3 h-100 align-items-stretch">
+          <Card className="border-0 shadow-sm rounded-4 bg-white flex-grow-0 flex-md-grow-0" style={{ minWidth: isMobile ? '80px' : 'auto' }}>
+              <Card.Body className="p-2 p-md-3 d-flex flex-column justify-content-center">
+                  <div className="text-muted small fw-bold mb-2 ps-2 d-none d-md-block">個人資訊</div>
+                  <PlayerAvatar 
+                    username={username} 
+                    showScore={false} 
+                    direction={isMobile ? 'vertical' : 'horizontal'} 
+                    size={isMobile ? 'sm' : 'md'}
+                  />
               </Card.Body>
           </Card>
 
           <Card className="border-0 shadow-sm rounded-4 flex-grow-1 bg-white">
-              <Card.Body className="p-4 d-flex flex-column">
-                  <div className="d-flex align-items-center gap-3 mb-4">
+              <Card.Body className="p-3 p-md-4 d-flex flex-column">
+                  <div className="d-flex align-items-center gap-2 gap-md-3 mb-2 mb-md-4">
                       <div className="bg-dark text-white p-2 rounded-3">
-                          <Gamepad2 size={24} />
+                          <Gamepad2 size={isMobile ? 20 : 24} />
                       </div>
                       <div>
-                          <h4 className="fw-bold m-0">遊戲大廳</h4>
-                          <div className="small text-muted">{roomList.length} 個房間</div>
+                          <h6 className="fw-bold m-0 d-md-none">大廳</h6>
+                          <h4 className="fw-bold m-0 d-none d-md-block">遊戲大廳</h4>
+                          <div className="small text-muted">{roomList.length} 間房</div>
                       </div>
                   </div>
 
-                   <p className="text-secondary small mb-4">
+                   <p className="text-secondary small mb-4 d-none d-md-block">
                       歡迎來到桌遊大廳！選擇一個房間加入，或是創建您自己的遊戲。
                   </p>
 
                   <Button 
                       variant="dark" 
                       size="lg" 
-                      className="w-100 rounded-pill shadow-sm py-3 fw-bold mt-auto d-flex align-items-center justify-content-center gap-2"
+                      className="w-100 rounded-pill shadow-sm py-2 py-md-3 fw-bold mt-auto d-flex align-items-center justify-content-center gap-2"
                       onClick={onCreateModalOpen}
                   >
-                      <Plus size={20} /> 創建房間
+                      <Plus size={20} /> <span className="d-none d-sm-inline">創建房間</span><span className="d-inline d-sm-none">創建</span>
                   </Button>
               </Card.Body>
           </Card>
