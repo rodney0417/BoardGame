@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io, { Socket } from 'socket.io-client';
-import { Navbar, Button, ToastContainer, Toast, Container } from 'react-bootstrap';
+import { Button, ToastContainer, Toast, Container } from 'react-bootstrap';
+import Navbar from './components/Navbar';
 import './index.css';
 
 import { useUser } from './domains/user/useUser';
@@ -151,24 +152,11 @@ function App() {
 
   return (
     <div className="App" style={{ minHeight: '100vh', paddingBottom: '40px' }}>
-      <Navbar className="mb-4" sticky="top">
-        <Navbar.Brand className="fw-bold fs-4 ms-2">
-          🪐 {appState === 'lobby' ? '萬遊引力 大廳' : `${activeRoom?.gameName || '未知'} - ${activeRoom?.id}`}
-        </Navbar.Brand>
-        <div className="ms-auto d-flex align-items-center gap-3 pe-2">
-          <Navbar.Text className="d-none d-sm-block">你好, {username}</Navbar.Text>
-           {appState === 'lobby' && (
-             <Button variant="success" size="sm" className="rounded-pill px-3 fw-bold shadow-sm" onClick={() => setShowCreateModal(true)}>
-               創建房間
-             </Button>
-           )}
-           {appState === 'room' && (
-            <Button variant="outline-danger" size="sm" className="rounded-pill px-3 text-nowrap" onClick={handleLeaveRoom}>
-              離開房間
-            </Button>
-          )}
-        </div>
-      </Navbar>
+      <Navbar 
+        roomId={appState === 'room' ? `${activeRoom?.gameName || '未知'}` : undefined}
+        onCreateRoom={appState === 'lobby' ? () => setShowCreateModal(true) : undefined}
+        onLeaveRoom={appState === 'room' ? handleLeaveRoom : undefined}
+      />
 
       <ToastContainer position="top-center" className="p-3" style={{ zIndex: 2000, position: 'fixed' }}>
         {toasts.map((t) => (

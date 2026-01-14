@@ -62,13 +62,12 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
 
       {/* Create Modal */}
       <Modal show={showCreateModal} onHide={onCloseCreateModal} centered>
-        <Modal.Body className="p-0 overflow-hidden" style={{ borderRadius: '20px' }}>
+        <Modal.Body className="p-0 overflow-hidden">
           {/* Header with gradient */}
           <div 
             className="text-center py-5"
             style={{ 
               background: GAME_CONFIG[selectedGame].gradient,
-              borderRadius: '20px 20px 0 0',
             }}
           >
             <div className="display-3 mb-2">{GAME_CONFIG[selectedGame].icon}</div>
