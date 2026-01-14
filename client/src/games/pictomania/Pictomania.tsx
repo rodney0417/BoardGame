@@ -328,11 +328,6 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
       onLeave={onLeaveRoom}
       main={
         <>
-            <GameTimer 
-                timeLeft={timeLeft} 
-                visible={phase === 'playing' && !me?.isDoneDrawing}
-            />
-
             <Card className="custom-card p-4 h-100 border-0 shadow-sm" style={{ minHeight: '600px' }}>
                 
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -375,7 +370,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
                         )}
                     </div>
 
-                    <div className="flex-grow-1 position-relative bg-light rounded-4 overflow-hidden">
+                    <div className="flex-grow-1 position-relative">
                        {phase === 'round_ended' ? (
                             <div className="p-3 h-100 overflow-auto">
                                 <RoundResultSummary 

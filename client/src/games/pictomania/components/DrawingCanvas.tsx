@@ -108,7 +108,7 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   };
 
   return (
-    <div className="canvas-wrapper p-1 bg-light rounded-2 shadow-sm">
+    <div className="canvas-wrapper">
       <canvas
         ref={canvasRef}
         width={PICTOMANIA_CANVAS_WIDTH}
