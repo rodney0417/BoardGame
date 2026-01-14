@@ -21,7 +21,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
   onLeave
 }) => {
   return (
-    <Container fluid className="py-3 position-relative" style={{ maxWidth, minHeight: '100vh' }}>
+    <Container fluid className="position-relative" style={{ maxWidth, minHeight: '100vh' }}>
       
       {/* Mobile Exit Button (Fixed Top-Right) */}
       {onLeave && (
