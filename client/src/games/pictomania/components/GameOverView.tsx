@@ -34,14 +34,6 @@ const GameOverView: React.FC<GameOverViewProps> = ({ players, history, onRestart
               <Card className="custom-card border-0 overflow-hidden">
                 <Card.Header className="bg-transparent border-0 p-3">
                   <div className="d-flex align-items-center gap-2">
-                    <div
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        backgroundColor: p.color,
-                        borderRadius: '50%',
-                      }}
-                    />
                     <h4 className="m-0 text-dark fw-bold">{p.username} 的作品集</h4>
                     <Badge bg="warning" text="dark" className="ms-auto fs-5">
                       總分: {p.score}

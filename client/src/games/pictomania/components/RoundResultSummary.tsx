@@ -23,17 +23,7 @@ const RoundResultSummary: React.FC<RoundResultSummaryProps> = ({ players }) => {
             {players.map((p) => (
               <tr key={p.id} className="align-middle">
                 <td className="px-4 border-0">
-                  <div className="d-flex align-items-center gap-2">
-                    <div
-                      style={{
-                        width: '12px',
-                        height: '12px',
-                        backgroundColor: p.color,
-                        borderRadius: '50%',
-                      }}
-                    />
-                    <span className="fw-bold">{p.username}</span>
-                  </div>
+                  <span className="fw-bold">{p.username}</span>
                 </td>
                 <td className="border-0">
                   <Badge bg="light" text="dark" className="border">

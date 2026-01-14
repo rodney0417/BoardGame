@@ -208,7 +208,6 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
           <Col lg={8}>
             <Card
               className="custom-card p-4 mb-4"
-              style={{ borderTop: `8px solid ${me?.color || 'var(--primary-color)'}` }}
             >
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div className="game-header-stats d-flex align-items-center gap-2">

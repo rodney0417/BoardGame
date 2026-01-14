@@ -24,17 +24,8 @@ const PlayerList: React.FC<PlayerListProps> = ({
         <Card key={p.id} className="mb-3 border-0 overflow-hidden rounded-4 custom-card shadow-sm">
           <div
             className="p-3 d-flex justify-content-between align-items-center border-bottom bg-light"
-            style={{ borderTop: `6px solid ${p.color}` }}
           >
             <div className="d-flex align-items-center gap-2 flex-wrap">
-              <div
-                style={{
-                  width: '12px',
-                  height: '12px',
-                  backgroundColor: p.color,
-                  borderRadius: '50%',
-                }}
-              />
               <span className="fw-bold text-dark">{p.username}</span>
               <Badge bg="info" className="ms-1 rounded-pill text-white">
                 得分: {p.score}
