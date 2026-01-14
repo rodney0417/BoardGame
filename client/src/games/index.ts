@@ -5,7 +5,7 @@ const Uno = lazy(() => import('./uno/Uno'));
 
 const GAME_COMPONENTS: Record<
   string,
-  React.LazyExoticComponent<React.ComponentType<{ socket: any; room: any; me: any }>>
+  React.LazyExoticComponent<React.ComponentType<{ socket: any; room: any; me: any; onLeaveRoom: () => void }>>
 > = {
   pictomania: Pictomania,
   uno: Uno,
