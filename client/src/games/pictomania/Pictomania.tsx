@@ -279,7 +279,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
 
   const gameInfoSection = (
     <SidebarSection>
-      <div className="d-flex d-lg-block flex-wrap">
+      <div className="d-flex d-md-block gap-2 flex-wrap">
         <SidebarStat 
            label="目前回合" 
            value={`${currentRound} / 5`} 
@@ -298,7 +298,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
 
   const sidebarContent = (
     <>
-      <div className="d-none d-lg-block">
+      <div className="d-none d-md-block">
         {gameInfoSection}
       </div>
 
@@ -308,7 +308,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
         </div>
       )}
 
-      <div className="pt-4">
+      <div className="mt-auto pt-4">
         <Button 
             variant="outline-danger" 
             className="w-100 rounded-pill py-2 shadow-sm"
@@ -321,9 +321,108 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
   );
 
   const headerContent = (
-    <div className="d-lg-none mb-3">
+    <div className="d-md-none mb-3">
       {gameInfoSection}
     </div>
+  );
+
+  const mainContent = (
+    <Card className="custom-card p-4 h-100 border-0 shadow-sm d-flex flex-column" style={{ minHeight: '400px' }}>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex align-items-center gap-3">
+          <h4 className="fw-bold m-0 text-dark">
+            {phase === 'round_ended' 
+              ? '本局結算' 
+              : (me.isDoneDrawing ? '請選擇玩家進行猜題' : '您的畫布')}
+          </h4>
+          {me.targetWord && !me.isDoneDrawing && (
+            <div className="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
+              <span className="badge bg-secondary rounded-pill me-2">#{me.numberCard}</span>
+              <span className="fw-bold text-dark">{me.targetWord}</span>
+            </div>
+          )}
+        </div>
+
+        {phase === 'playing' && !me.isDoneDrawing && (
+          <div className="d-flex gap-2">
+            <Button
+              variant="link"
+              className="text-muted text-decoration-none p-0 px-2"
+              onClick={handleClearCanvas}
+            >
+              清空
+            </Button>
+            <Button
+              variant="primary" 
+              size="sm"
+              className="rounded-pill px-4 fw-bold shadow-sm"
+              onClick={handleFinishDrawing}
+            >
+              畫好了
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-grow-1 position-relative overflow-hidden">
+        {phase === 'round_ended' ? (
+          <div className="h-100 overflow-auto">
+            <RoundResultSummary 
+              players={players} 
+              history={history} 
+              currentRound={currentRound} 
+            />
+            {isHost && (
+              <div className="text-center mt-4">
+                <Button 
+                  size="lg" 
+                  variant="dark" 
+                  className="rounded-pill px-5 shadow fw-bold"
+                  onClick={nextRound}
+                >
+                  下一回合 <ArrowRight size={20} className="ms-2"/>
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          me.isDoneDrawing ? (
+            <div className="h-100 overflow-auto">
+                <PlayerList
+                  otherPlayers={otherPlayers}
+                  me={me}
+                  phase={phase}
+                  canvasRefs={canvasRefs}
+                  onGuessClick={handleGuessClick}
+                />
+            </div>
+          ) : (
+            <DrawingCanvas
+              me={me}
+              phase={phase}
+              canvasRef={myCanvasRef}
+              isDrawingRef={isDrawing}
+              lastPosRef={lastPos}
+              onDraw={(data) => socket.emit('draw', { roomId, ...data })}
+              onStrokeEnd={handleSaveCanvas}
+            />
+          )
+        )}
+      </div>
+
+      <GuessModal
+        show={showGuessModal}
+        onHide={() => setShowGuessModal(false)}
+        targetPlayer={targetPlayer}
+        cards={cards}
+        selectedSymbol={selectedSymbol}
+        onSymbolSelect={setSelectedSymbol}
+        onGuess={handleGuessSubmit}
+        usedNumbers={me?.myGuesses?.map((g: any) => g.number) || []}
+        mySymbol={me?.symbolCard || ''}
+        myNumber={me?.numberCard || 0}
+      />
+    </Card>
   );
 
   return (
@@ -331,108 +430,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
       maxWidth="1400px"
       sidebar={sidebarContent}
       header={headerContent}
-      onLeave={onLeaveRoom}
-      main={
-        <>
-            <Card className="custom-card p-4 h-100 border-0 shadow-sm" style={{ minHeight: '400px' }}>
-                
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                        <div className="d-flex align-items-center gap-3">
-                            <h4 className="fw-bold m-0 text-dark">
-                                {phase === 'round_ended' ? '本局結算' : '您的畫布'}
-                            </h4>
-                            {me.targetWord && (
-                                <div className="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
-                                    <span className="badge bg-secondary rounded-pill me-2">#{me.numberCard}</span>
-                                    <span className="fw-bold text-dark">{me.targetWord}</span>
-                                </div>
-                            )}
-                        </div>
-
-                         {phase === 'playing' && !me.isDoneDrawing && (
-                             <div className="d-flex gap-2">
-                                <Button
-                                  variant="link"
-                                  className="text-muted text-decoration-none p-0 px-2"
-                                  onClick={handleClearCanvas}
-                                >
-                                  清空
-                                </Button>
-                                <Button
-                                  variant="primary" 
-                                  size="sm"
-                                  className="rounded-pill px-4 fw-bold shadow-sm"
-                                  onClick={handleFinishDrawing}
-                                >
-                                  {me.isDoneDrawing ? (
-                                    <>
-                                      <CheckCircle size={16} className="me-1" /> 已完成
-                                    </>
-                                  ) : (
-                                    '畫好了'
-                                  )}
-                                </Button>
-                             </div>
-                        )}
-                    </div>
-
-                    <div className="flex-grow-1 position-relative">
-                       {phase === 'round_ended' ? (
-                            <div className="p-3 h-100 overflow-auto">
-                                <RoundResultSummary 
-                                    players={players} 
-                                    history={history} 
-                                    currentRound={currentRound} 
-                                />
-                                {isHost && (
-                                     <div className="text-center mt-4">
-                                        <Button 
-                                            size="lg" 
-                                            variant="dark" 
-                                            className="rounded-pill px-5 shadow fw-bold"
-                                            onClick={nextRound}
-                                        >
-                                            下一回合 <ArrowRight size={20} className="ms-2"/>
-                                        </Button>
-                                     </div>
-                                )}
-                            </div>
-                       ) : (me.isDoneDrawing ? (
-                            <PlayerList
-                                otherPlayers={otherPlayers}
-                                me={me}
-                                phase={phase}
-                                canvasRefs={canvasRefs}
-                                onGuessClick={handleGuessClick}
-                            />
-                       ) : (
-                            <DrawingCanvas
-                                me={me}
-                                phase={phase}
-                                canvasRef={myCanvasRef}
-                                isDrawingRef={isDrawing}
-                                lastPosRef={lastPos}
-                                onDraw={(data) => socket.emit('draw', { roomId, ...data })}
-                                onStrokeEnd={handleSaveCanvas}
-                            />
-                       ))}
-                   </div>
-            </Card>
-
-          <GuessModal
-            show={showGuessModal}
-            onHide={() => setShowGuessModal(false)}
-            targetPlayer={targetPlayer}
-            cards={cards}
-            selectedSymbol={selectedSymbol}
-            onSymbolSelect={setSelectedSymbol}
-            onGuess={handleGuessSubmit}
-            usedNumbers={me?.myGuesses?.map((g: any) => g.number) || []}
-            mySymbol={me?.symbolCard || ''}
-            myNumber={me?.numberCard || 0}
-          />
-        </>
-      }
+      main={mainContent}
     />
   );
 };

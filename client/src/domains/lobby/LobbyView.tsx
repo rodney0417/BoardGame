@@ -41,9 +41,20 @@ const LobbyView: React.FC<LobbyViewProps> = ({
     setCreateRoomName('');
   };
 
+  // Right Side on Desktop / Top Side on Mobile (1:3 ratio)
   const sidebarContent = (
-      <div className="d-flex flex-row flex-md-column gap-2 gap-md-3 h-100 align-items-stretch">
-          <Card className="border-0 shadow-sm rounded-4 bg-white flex-grow-0 flex-md-grow-0" style={{ minWidth: isMobile ? '80px' : 'auto' }}>
+      <div className="d-flex flex-row flex-md-column gap-2 gap-md-3 align-items-stretch px-0 pb-0 pt-0 px-md-0 py-md-0">
+          <style>
+              {`
+                @media (max-width: 767px) {
+                    .flex-1-mobile { flex: 1 !important; min-width: 0; }
+                    .flex-3-mobile { flex: 3 !important; min-width: 0; }
+                }
+              `}
+          </style>
+          
+          {/* Personal Info Card (1/4 width on mobile) */}
+          <Card className="border-0 shadow-sm rounded-4 bg-white flex-1-mobile">
               <Card.Body className="p-2 p-md-3 d-flex flex-column justify-content-center">
                   <div className="text-muted small fw-bold mb-2 ps-2 d-none d-md-block">個人資訊</div>
                   <PlayerAvatar 
@@ -55,40 +66,45 @@ const LobbyView: React.FC<LobbyViewProps> = ({
               </Card.Body>
           </Card>
 
-          <Card className="border-0 shadow-sm rounded-4 flex-grow-1 bg-white">
-              <Card.Body className="p-3 p-md-4 d-flex flex-column">
-                  <div className="d-flex align-items-center gap-2 gap-md-3 mb-2 mb-md-4">
-                      <div className="bg-dark text-white p-2 rounded-3">
-                          <Gamepad2 size={isMobile ? 20 : 24} />
+          {/* Lobby Info Card (3/4 width on mobile) */}
+          <Card className="border-0 shadow-sm rounded-4 bg-white flex-3-mobile">
+              <Card.Body className="p-2 p-md-3 p-xl-4 d-flex flex-column justify-content-center h-100">
+                  <div className="d-flex align-items-center gap-2 mb-2 mb-md-4">
+                      <div className="bg-dark text-white p-2 rounded-3 d-none d-sm-block">
+                          <Gamepad2 size={isMobile ? 18 : 24} />
                       </div>
-                      <div>
-                          <h6 className="fw-bold m-0 d-md-none">大廳</h6>
+                      <div className="overflow-hidden">
+                          <h6 className="fw-bold m-0 d-md-none text-truncate" style={{ fontSize: '1rem' }}>遊戲大廳</h6>
                           <h4 className="fw-bold m-0 d-none d-md-block">遊戲大廳</h4>
-                          <div className="small text-muted">{roomList.length} 間房</div>
+                          <div className="small text-muted" style={{ fontSize: '0.8rem' }}>{roomList.length} 間房</div>
                       </div>
                   </div>
 
-                   <p className="text-secondary small mb-4 d-none d-md-block">
+                   <p className="text-secondary small mb-3 d-none d-md-block">
                       歡迎來到桌遊大廳！選擇一個房間加入，或是創建您自己的遊戲。
                   </p>
 
                   <Button 
                       variant="dark" 
-                      size="lg" 
-                      className="w-100 rounded-pill shadow-sm py-2 py-md-3 fw-bold mt-auto d-flex align-items-center justify-content-center gap-2"
+                      size="sm" 
+                      className="w-100 rounded-pill shadow-sm py-2 fw-bold mt-auto d-flex align-items-center justify-content-center gap-1"
                       onClick={onCreateModalOpen}
+                      style={{ fontSize: isMobile ? '0.8rem' : 'auto' }}
                   >
-                      <Plus size={20} /> <span className="d-none d-sm-inline">創建房間</span><span className="d-inline d-sm-none">創建</span>
+                      <Plus size={isMobile ? 16 : 16} /> 
+                      <span className="d-none d-sm-inline">創建房間</span>
+                      <span className="d-inline d-sm-none">創建</span>
                   </Button>
               </Card.Body>
           </Card>
       </div>
   );
 
+  // Left Side on Desktop / Bottom Side on Mobile
   const mainContent = (
-      <>
+      <div className="px-0 px-md-0 pb-0">
         {roomList.length === 0 ? (
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-light py-5 text-center h-100 d-flex align-items-center justify-content-center">
+            <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-light py-5 text-center d-flex align-items-center justify-content-center">
                 <Card.Body className="py-5">
                     <div className="mb-4 opacity-50">
                         <img 
@@ -111,7 +127,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({
                 return (
                 <Col xs={12} xl={6} key={r.id}>
                     <Card 
-                    className={`h-100 border-0 shadow-sm rounded-4 transition-all-hover ${disabled ? 'opacity-75 grayscale' : ''}`}
+                    className={`border-0 shadow-sm rounded-4 transition-all-hover ${disabled ? 'opacity-75 grayscale' : ''}`}
                     style={{ 
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         transition: 'transform 0.2s, box-shadow 0.2s',
@@ -122,10 +138,10 @@ const LobbyView: React.FC<LobbyViewProps> = ({
                             <div 
                                 className="rounded-3 d-flex align-items-center justify-content-center text-white shrink-0"
                                 style={{ 
-                                    width: '80px', 
-                                    height: '80px', 
+                                    width: isMobile ? '60px' : '80px', 
+                                    height: isMobile ? '60px' : '80px', 
                                     background: game.gradient,
-                                    fontSize: '2rem'
+                                    fontSize: isMobile ? '1.5rem' : '2rem'
                                 }}
                             >
                                 {game.icon}
@@ -156,7 +172,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({
             })}
             </Row>
         )}
-      </>
+      </div>
   );
 
   return (
