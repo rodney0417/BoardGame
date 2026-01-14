@@ -5,6 +5,7 @@ import { UnoCard as UnoCardType, UnoPlayer, CardColor } from './types';
 import UnoCardComponent from './components/UnoCard';
 import PlayerHand from './components/PlayerHand';
 import ColorPicker from './components/ColorPicker';
+import GameLobby from '../shared/GameLobby';
 
 interface UnoProps {
   socket: Socket;
@@ -95,68 +96,25 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me }) => {
 
   if (phase === 'waiting') {
     return (
-      <Container className="py-5" style={{ maxWidth: '800px' }}>
-        <Card
-          className="shadow-sm border-0"
-          style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '16px',
-          }}
-        >
-          <Card.Body className="p-5 text-center">
-            <h2 className="mb-4 fw-bold text-dark">🎴 本局結束</h2>
-            <p className="text-muted mb-4 fs-5">目標分數：500 分</p>
-
-            <div className="table-responsive mb-4">
-              <table className="table table-hover align-middle">
-                <thead className="table-light">
-                  <tr>
-                    <th scope="col">排名</th>
-                    <th scope="col">玩家</th>
-                    <th scope="col">目前總分</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...players]
-                    .sort((a, b) => (b.score || 0) - (a.score || 0))
-                    .map((p, index) => (
-                      <tr key={p.id} className={index === 0 ? 'table-warning fw-bold' : ''}>
-                        <td>{index === 0 ? '👑' : index + 1}</td>
-                        <td>
-                          <div className="d-flex align-items-center gap-2 justify-content-center">
-                            {p.username}
-                            {index === 0 && (
-                              <Badge bg="warning" text="dark" pill>
-                                領先
-                              </Badge>
-                            )}
-                          </div>
-                        </td>
-                        <td className="fs-5">{p.score || 0}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-
-            {room.players[0].id === me.id ? (
-              <Button
-                variant="primary"
-                size="lg"
-                className="px-5 py-2 fw-bold shadow-sm"
-                onClick={startGame}
-              >
-                開始下一局
-              </Button>
-            ) : (
-              <div className="text-muted">等待房主開始下一局...</div>
-            )}
-          </Card.Body>
-        </Card>
-      </Container>
+      <GameLobby
+        gameName="UNO"
+        gameIcon="🎴"
+        gradientColors={['#667eea', '#764ba2']}
+        players={players.map((p: UnoPlayer) => ({ id: p.id, username: p.username, color: p.color }))}
+        myId={me.id}
+        minPlayers={2}
+        maxPlayers={10}
+        isHost={room.players[0]?.id === me.id}
+        onStartGame={startGame}
+        rules={[
+          '最先打完所有手牌的玩家獲勝',
+          '只剩一張牌時記得喊 UNO!',
+          '目標分數：500 分',
+        ]}
+      />
     );
   }
+
 
   if (phase === 'game_over') {
     const winnerId = gameState?.winner;

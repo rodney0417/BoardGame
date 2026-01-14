@@ -7,6 +7,7 @@ RUN npm install
 # Stage 2: Development (For Docker Compose with volumes)
 FROM base as dev
 # Source code should be mounted here
+ENV VITE_API_URL=http://backend:3001
 EXPOSE 8085
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8085"]
 

@@ -11,6 +11,7 @@ import GameOverView from './components/GameOverView';
 import DrawingCanvas from './components/DrawingCanvas';
 import PlayerList from './components/PlayerList';
 import RoundResultSummary from './components/RoundResultSummary';
+import GameLobby from '../shared/GameLobby';
 
 import { PictomaniaPlayer, PictomaniaPhase } from './types';
 
@@ -155,6 +156,47 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   const otherPlayers = players.filter((p: PictomaniaPlayer) => p.id !== me.id);
 
+  // Difficulty Selector for host
+  const difficultySelector = (
+    <div className="d-flex align-items-center justify-content-center gap-2">
+      <span className="text-muted small fw-bold">難度：</span>
+      {levels.map((level: number) => (
+        <Button
+          key={level}
+          size="sm"
+          variant={selectedDifficulty === level ? 'primary' : 'outline-secondary'}
+          className="rounded-circle p-0"
+          style={{ width: '32px', height: '32px' }}
+          onClick={() => setSelectedDifficulty(level)}
+        >
+          {level}
+        </Button>
+      ))}
+    </div>
+  );
+
+  if (phase === 'waiting') {
+    return (
+      <GameLobby
+        gameName="妙筆神猜"
+        gameIcon="🎨"
+        gradientColors={['#f093fb', '#f5576c']}
+        players={players.map((p: PictomaniaPlayer) => ({ id: p.id, username: p.username, color: p.color }))}
+        myId={me.id}
+        minPlayers={2}
+        maxPlayers={6}
+        isHost={isHost}
+        onStartGame={startGame}
+        rules={[
+          '每位玩家畫出自己的題目',
+          '觀察其他人的畫，猜測他們的題目',
+          '畫得越好、猜得越準，分數越高！',
+        ]}
+        hostControls={difficultySelector}
+      />
+    );
+  }
+
   return (
     <>
       <FixedTimer phase={phase} timeLeft={timeLeft} isDoneDrawing={!!me?.isDoneDrawing} />
@@ -196,25 +238,24 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
                 </div>
 
                 <div className="d-flex align-items-center gap-2 gap-sm-3 flex-wrap">
-                  {phase !== 'waiting' && (
-                    <div className="d-flex align-items-center gap-2">
-                      <div className="d-flex align-items-center bg-light rounded-pill px-2 px-sm-3 py-1 shadow-sm border">
-                        <SymbolIcon
-                          symbol={me?.symbolCard || ''}
-                          size={20}
-                          className="me-1 me-sm-2"
-                        />
-                        <div className="text-nowrap small">
-                          <span className="text-secondary fw-bold d-none d-sm-inline me-1">
-                            目標:
-                          </span>
-                          <span className="fw-bolder text-dark">
-                            #{me?.numberCard} {me?.targetWord}
-                          </span>
-                        </div>
+                  {/* Show target info during playing/round_ended */}
+                  <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex align-items-center bg-light rounded-pill px-2 px-sm-3 py-1 shadow-sm border">
+                      <SymbolIcon
+                        symbol={me?.symbolCard || ''}
+                        size={20}
+                        className="me-1 me-sm-2"
+                      />
+                      <div className="text-nowrap small">
+                        <span className="text-secondary fw-bold d-none d-sm-inline me-1">
+                          目標:
+                        </span>
+                        <span className="fw-bolder text-dark">
+                          #{me?.numberCard} {me?.targetWord}
+                        </span>
                       </div>
                     </div>
-                  )}
+                  </div>
 
                   <div className="d-flex gap-1 ms-auto ms-sm-0">
                     {phase === 'playing' && !me?.isDoneDrawing && (
@@ -227,7 +268,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
                         🗑️ <span className="d-none d-sm-inline">清空</span>
                       </Button>
                     )}
-                    {phase === 'waiting' || phase === 'round_ended' ? (
+                    {phase === 'round_ended' ? (
                       isHost ? (
                         <div className="d-flex align-items-center gap-2">
                           <div className="d-flex align-items-center gap-1 bg-light rounded-pill px-2 py-1">
@@ -248,30 +289,18 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
                             ))}
                           </div>
                           <Button
-                            variant={phase === 'waiting' ? 'success' : 'primary'}
+                            variant="primary"
                             size="sm"
-                            onClick={phase === 'waiting' ? startGame : nextRound}
-                            disabled={phase === 'waiting' && players.length < 2}
+                            onClick={nextRound}
                             className="rounded-pill px-3 shadow-sm text-nowrap"
                           >
-                            {phase === 'waiting' ? (
-                              <>
-                                👤 <span className="d-none d-sm-inline">2人開始</span>
-                                <span className="d-inline d-sm-none">開始</span>
-                              </>
-                            ) : (
-                              <>
-                                <span className="d-none d-sm-inline">下一局</span>{' '}
-                                <ArrowRight size={14} />
-                              </>
-                            )}
+                            <span className="d-none d-sm-inline">下一局</span>{' '}
+                            <ArrowRight size={14} />
                           </Button>
                         </div>
                       ) : (
                         <div className="d-flex align-items-center gap-2 text-muted fw-bold">
-                          <span>
-                            ⏳ 等待房主{phase === 'waiting' ? '開始遊戲' : '選擇下一局'}...
-                          </span>
+                          <span>⏳ 等待房主選擇下一局...</span>
                         </div>
                       )
                     ) : (
