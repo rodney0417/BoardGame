@@ -86,8 +86,13 @@ const Uno: GameModule<UnoState, UnoSettings> = {
               message: `🏆 恭喜 ${winnerPlayer.username} 達成 ${(winnerPlayer as any).score} 分，獲得最終勝利！`,
             });
           } else {
-            // Round Over - Go back to waiting to start next round
-            room.phase = 'waiting';
+            // Round Over - Show Settlement
+            room.phase = 'round_ended';
+            
+            // Store round results in gameState for client to display
+            (room.gameState as any).roundWinner = winner;
+            (room.gameState as any).roundPoints = roundPoints;
+
             io.to(room.id).emit('toast', {
               type: 'success',
               message: `🎉 ${winnerPlayer?.username} 贏得本局！獲得 ${roundPoints} 分 (總分: ${(winnerPlayer as any).score})`,
@@ -194,6 +199,27 @@ const Uno: GameModule<UnoState, UnoSettings> = {
       return false;
     },
 
+    next_round: (io, room, socket, data) => {
+      // Only host can start next round
+      if (socket.id !== room.players[0].id) return false;
+      if (room.phase !== 'round_ended') return false;
+
+      // Start new round logic
+      const playerIds = room.players.map((p) => p.id);
+      const roundModel = new UnoRound(playerIds);
+      
+      // Reset Game State for new round
+      room.gameState = { 
+        roundModel: roundModel 
+      } as any;
+      room.phase = 'playing';
+
+      syncState(io, room);
+      io.to(room.id).emit('toast', { type: 'success', message: '🎴 新的一局開始！' });
+
+      return true;
+    },
+
     start_game: (io, room, socket, data) => {
       // Only host can start
       if (socket.id !== room.players[0].id) return false;
@@ -270,7 +296,14 @@ function syncState(io: Server, room: Room<UnoState, UnoSettings>): void {
   (room.gameState as any).direction = state.direction;
   (room.gameState as any).deckSize = state.deckSize;
   (room.gameState as any).unoCalled = state.unoCalled;
+  (room.gameState as any).unoCalled = state.unoCalled;
   (room.gameState as any).hasDrawnThisTurn = state.hasDrawnThisTurn;
+  
+  // Persist round results if they exist (for settlement view)
+  if ((room.gameState as any).roundWinner) {
+      (room.gameState as any).roundWinner = (room.gameState as any).roundWinner;
+      (room.gameState as any).roundPoints = (room.gameState as any).roundPoints;
+  }
 
   // Send private hands to each player
   room.players.forEach((p) => {

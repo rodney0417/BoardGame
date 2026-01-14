@@ -137,8 +137,34 @@ function App() {
     );
   }
 
+  const handleValidateUsername = (name: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      let isResolved = false;
+      
+      // 1. Socket Emit
+      socket.emit(
+        'validate_username',
+        { username: name },
+        (response: { valid: boolean; message?: string }) => {
+          if (!isResolved) {
+             isResolved = true;
+             resolve(response.valid ? null : response.message || '此暱稱已被使用');
+          }
+        }
+      );
+
+      // 2. Timeout Fallback (3s)
+      setTimeout(() => {
+          if (!isResolved) {
+              isResolved = true;
+              resolve('伺服器回應逾時，請檢查連線');
+          }
+      }, 3000);
+    });
+  };
+
   if (appState === 'login') {
-    return <LoginView onLogin={handleLogin} />;
+    return <LoginView onLogin={handleLogin} onValidate={handleValidateUsername} />;
   }
 
   return (

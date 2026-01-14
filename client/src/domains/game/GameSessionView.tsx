@@ -20,7 +20,11 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({ socket, activeRoom, m
         );
     }
 
-    return <GameComponent socket={socket} room={activeRoom} me={me} />;
+    return (
+        <div className="container-fluid px-0 px-md-3">
+            <GameComponent socket={socket} room={activeRoom} me={me} />
+        </div>
+    );
 };
 
 export default GameSessionView;

@@ -99,6 +99,38 @@ describe('Pictomania Game Logic', () => {
     });
   });
 
+  describe('Game Settings', () => {
+    it('should update settings and broadcast changes', () => {
+      room.phase = 'waiting';
+      // Initial settings are diff:1, drawTime:60 (from mock) - wait mock says settings in beforeEach?
+      // Check beforeEach: settings: { drawTime: 60, totalRounds: 5 }. difficulty missing.
+      // Let's ensure initial state.
+      room.settings = { difficulty: 1, drawTime: 60, totalRounds: 3 };
+
+      socket = { id: 'p1', emit: vi.fn() }; // p1 is host
+      const data = { difficulty: 2, drawTime: 90 };
+
+      const result = Pictomania.handlers['update_settings'](io, room, socket, data);
+
+      expect(result).toBe(true); // Should trigger broadcast
+      expect(room.settings.difficulty).toBe(2);
+      expect(room.settings.drawTime).toBe(90);
+    });
+
+    it('should NOT update settings if game is playing', () => {
+      room.phase = 'playing';
+      room.settings = { difficulty: 1, drawTime: 60, totalRounds: 3 };
+      
+      socket = { id: 'p1', emit: vi.fn() };
+      const data = { difficulty: 3 };
+
+      const result = Pictomania.handlers['update_settings'](io, room, socket, data);
+
+      expect(result).toBe(false); // No broadcast
+      expect(room.settings.difficulty).toBe(1); // Unchanged
+    });
+  });
+
   describe('Difficulty Selection', () => {
     it('should set difficulty from start_game data when valid', () => {
       room.phase = 'waiting';

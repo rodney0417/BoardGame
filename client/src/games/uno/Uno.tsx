@@ -7,6 +7,7 @@ import PlayerHand from './components/PlayerHand';
 import ColorPicker from './components/ColorPicker';
 import GameLobby from '../shared/GameLobby';
 import GameOver from '../shared/GameOver';
+import UnoSettlementView from './components/UnoSettlementView';
 
 interface UnoProps {
   socket: Socket;
@@ -130,6 +131,21 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me }) => {
         onBackToLobby={() => window.location.reload()}
       />
     );
+  }
+
+  if (phase === 'round_ended') {
+      const winnerId = gameState?.roundWinner;
+      const roundPoints = gameState?.roundPoints;
+      
+      return (
+          <UnoSettlementView 
+            players={players}
+            winnerId={winnerId}
+            roundPoints={roundPoints}
+            onNextRound={() => socket.emit('next_round', room.id)}
+            isHost={room.players[0]?.id === me.id}
+          />
+      );
   }
 
   return (

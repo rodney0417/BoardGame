@@ -69,8 +69,8 @@ const GameLobby: React.FC<GameLobbyProps> = ({
             ))}
           </div>
 
-          {/* Host Controls */}
-          {isHost && hostControls && (
+          {/* Host Controls (Visible to All) */}
+          {hostControls && (
             <div className="mb-4 pt-3 border-top">
               {hostControls}
             </div>

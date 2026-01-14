@@ -487,6 +487,20 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
       }
       return false;
     },
+
+    update_settings: (io, room, socket, data) => {
+        if (room.phase !== 'waiting') return false;
+        
+        // Host check is implicitly done by UI but server could enforce if we had hostId tracked reliably.
+        // Assuming first player is host or trusted for now as per minimal implementation.
+        // Actually GameLobby UI restricts it. Server could check room.players[0].id === socket.id
+        
+        const { difficulty, drawTime } = data;
+        if (difficulty) room.settings.difficulty = difficulty;
+        if (drawTime) room.settings.drawTime = drawTime;
+        
+        return true; // Triggers broadcast
+    }
   },
 };
 

@@ -13,11 +13,17 @@ import PlayerList from './components/PlayerList';
 import RoundResultSummary from './components/RoundResultSummary';
 import GameLobby from '../shared/GameLobby';
 
-import { PictomaniaPlayer, PictomaniaPhase } from './types';
+import { PictomaniaPlayer, PictomaniaPhase, PictomaniaState } from './types';
+
+interface PictomaniaSettings {
+  difficulty: number;
+  drawTime: number;
+  totalRounds: number;
+}
 
 interface PictomaniaProps {
   socket: Socket;
-  room: RoomDTO;
+  room: RoomDTO<PictomaniaState, PictomaniaSettings>;
   me: PictomaniaPlayer;
 }
 
@@ -35,8 +41,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
   const [showGuessModal, setShowGuessModal] = useState(false);
   const [targetPlayer, setTargetPlayer] = useState<PictomaniaPlayer | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<number>(1);
-  const [selectedDrawTime, setSelectedDrawTime] = useState<number>(60);
+
   const drawTimes = [30, 45, 60, 90];
 
   const myCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -152,8 +157,8 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
     }, [currentRound, me.isDoneDrawing, phase]);
 
 
-  const startGame = () => socket.emit('start_game', { roomId, difficulty: selectedDifficulty, drawTime: selectedDrawTime });
-  const nextRound = () => socket.emit('next_round', { roomId, difficulty: selectedDifficulty, drawTime: selectedDrawTime });
+  const startGame = () => socket.emit('start_game', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
+  const nextRound = () => socket.emit('next_round', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
   const stopDrawing = () => {
       socket.emit('player_finish_drawing', roomId);
       localStorage.removeItem('pictomania_canvas_backup');
@@ -195,6 +200,24 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   const otherPlayers = players.filter((p: PictomaniaPlayer) => p.id !== me.id);
 
+  // Derived State (Server Authority)
+  const settings = room.settings as any;
+  const currentDifficulty = settings?.difficulty || 1;
+  const currentDrawTime = settings?.drawTime || 60;
+
+
+
+  const updateSetting = (key: 'difficulty' | 'drawTime', value: number) => {
+    if (!isHost) return;
+    
+    // Server Authority: Just emit, UI updates on broadcast
+    socket.emit('game_event', {
+      roomId,
+      action: 'update_settings',
+      data: { [key]: value }
+    });
+  };
+
   // Host Controls
   const hostControls = (
     <div className="d-flex flex-column gap-3">
@@ -206,10 +229,11 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
             <Button
               key={level}
               size="sm"
-              variant={selectedDifficulty === level ? 'primary' : 'outline-secondary'}
+              variant={currentDifficulty === level ? 'primary' : 'outline-secondary'}
               className="rounded-circle p-0 fw-bold"
-              style={{ width: '30px', height: '30px' }}
-              onClick={() => setSelectedDifficulty(level)}
+              style={{ width: '30px', height: '30px', cursor: isHost ? 'pointer' : 'default' }}
+              onClick={() => isHost && updateSetting('difficulty', level)}
+              disabled={!isHost && currentDifficulty !== level}
             >
               {level}
             </Button>
@@ -225,10 +249,11 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
             <Button
               key={time}
               size="sm"
-              variant={selectedDrawTime === time ? 'success' : 'outline-secondary'}
+              variant={currentDrawTime === time ? 'success' : 'outline-secondary'}
               className="rounded-pill px-2 fw-bold"
-              style={{ minWidth: '45px' }}
-              onClick={() => setSelectedDrawTime(time)}
+              style={{ minWidth: '45px', cursor: isHost ? 'pointer' : 'default' }}
+              onClick={() => isHost && updateSetting('drawTime', time)}
+              disabled={!isHost && currentDrawTime !== time}
             >
               {time}s
             </Button>
@@ -334,11 +359,12 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
                                 key={level}
                                 size="sm"
                                 variant={
-                                  selectedDifficulty === level ? 'primary' : 'outline-secondary'
+                                  currentDifficulty === level ? 'primary' : 'outline-secondary'
                                 }
                                 className="rounded-circle p-0 border-0"
-                                style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}
-                                onClick={() => setSelectedDifficulty(level)}
+                                style={{ width: '28px', height: '28px', fontSize: '0.75rem', cursor: isHost ? 'pointer' : 'default' }}
+                                onClick={() => isHost && updateSetting('difficulty', level)}
+                                disabled={!isHost && currentDifficulty !== level}
                               >
                                 {level}
                               </Button>
