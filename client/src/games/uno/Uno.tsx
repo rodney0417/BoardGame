@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { getUnoColorHex } from './constants';
 import { useGameRoom } from '../shared/hooks/useGameRoom';
 import { SidebarSection, SidebarStat } from '../shared/components/SidebarModules';
