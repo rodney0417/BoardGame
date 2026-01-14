@@ -51,10 +51,19 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, onValidate }) => {
   return (
     <div
       className="d-flex align-items-center justify-content-center w-100 vh-100"
-      style={{ background: '#f0f2f5' }}
+      style={{ 
+        backgroundImage: "url('/src/assets/wood-pattern.svg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#6d5c4e'
+      }}
     >
-      <Card className="border-0 shadow-sm rounded-4 overflow-hidden" style={{ maxWidth: '420px', width: '100%' }}>
-        <Card.Body className="p-5 text-center">
+      {/* Semi-transparent overlay to ensure readability */}
+      <div className="position-absolute w-100 h-100" style={{ backgroundColor: 'rgba(0,0,0,0.1)', pointerEvents: 'none' }} />
+
+      <Card className="border-0 shadow-lg rounded-4 overflow-hidden position-relative" style={{ maxWidth: '420px', width: '90%', backdropFilter: 'blur(4px)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+        <Card.Body className="p-4 p-md-5 text-center">
             <div className="mb-4 d-inline-block p-3 rounded-circle bg-dark text-white shadow-sm">
                 <Gamepad2 size={40} />
             </div>
