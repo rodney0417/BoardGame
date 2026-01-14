@@ -66,39 +66,66 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
 
       {/* Create Modal */}
       <Modal show={showCreateModal} onHide={onCloseCreateModal} centered>
-        <Modal.Body className="p-4">
-          <h5 className="fw-bold mb-4">創建房間</h5>
-          
-          <div className="d-flex gap-2 mb-4">
-            {Object.entries(games).map(([key, info]) => (
-              <Button
-                key={key}
-                variant={selectedGame === key ? 'dark' : 'outline-secondary'}
-                className="flex-fill rounded-pill"
-                onClick={() => setSelectedGame(key)}
-              >
-                {info.icon} {info.name}
-              </Button>
-            ))}
+        <Modal.Body className="p-0 overflow-hidden" style={{ borderRadius: '20px' }}>
+          {/* Header with gradient */}
+          <div 
+            className="text-center py-5"
+            style={{ 
+              background: selectedGame === 'uno' 
+                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            }}
+          >
+            <div className="display-3 mb-2">{games[selectedGame as keyof typeof games]?.icon}</div>
+            <h4 className="text-white fw-bold mb-0">創建房間</h4>
           </div>
           
-          <Form.Control
-            type="text"
-            placeholder="房間名稱"
-            value={createRoomName}
-            onChange={(e) => setCreateRoomName(e.target.value)}
-            className="rounded-pill px-4 py-3 mb-4"
-            autoFocus
-          />
-          
-          <Button
-            variant="dark"
-            className="w-100 rounded-pill py-3"
-            onClick={handleCreateRoom}
-            disabled={!createRoomName}
-          >
-            創建
-          </Button>
+          <div className="p-4">
+            {/* Game Selector */}
+            <div className="d-flex gap-2 mb-4">
+              {Object.entries(games).map(([key, info]) => (
+                <div
+                  key={key}
+                  className="flex-fill text-center py-3 rounded-4"
+                  style={{ 
+                    background: selectedGame === key ? '#f8f9fa' : 'transparent',
+                    border: selectedGame === key ? '2px solid #dee2e6' : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onClick={() => setSelectedGame(key)}
+                >
+                  <div className="fs-3 mb-1">{info.icon}</div>
+                  <div className="small fw-medium text-dark">{info.name}</div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Room Name Input */}
+            <Form.Control
+              type="text"
+              placeholder="輸入房間名稱..."
+              value={createRoomName}
+              onChange={(e) => setCreateRoomName(e.target.value)}
+              className="rounded-4 px-4 py-3 mb-4 border-0"
+              style={{ background: '#f8f9fa', fontSize: '1.1rem' }}
+              autoFocus
+            />
+            
+            {/* Create Button */}
+            <Button
+              className="w-100 rounded-4 py-3 fw-bold border-0"
+              style={{ 
+                background: selectedGame === 'uno' 
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              }}
+              onClick={handleCreateRoom}
+              disabled={!createRoomName}
+            >
+              🚀 開始遊戲
+            </Button>
+          </div>
         </Modal.Body>
       </Modal>
     </Container>
