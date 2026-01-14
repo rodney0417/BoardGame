@@ -294,17 +294,9 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
         )}
       </SidebarSection>
 
-      <PlayerList
-         otherPlayers={otherPlayers}
-         me={me}
-         phase={phase}
-         canvasRefs={canvasRefs}
-         onGuessClick={handleGuessClick}
-      />
 
       {hostControls && (
-        <div className="mt-4 p-3 bg-white rounded-3 shadow-sm border">
-            <h6 className="text-muted small fw-bold mb-3 border-bottom pb-2">房主控制</h6>
+        <div className="mt-2 p-3 bg-white rounded-3 shadow-sm border">
             {hostControls}
         </div>
       )}
@@ -391,6 +383,14 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
                                      </div>
                                 )}
                             </div>
+                       ) : (me.isDoneDrawing ? (
+                            <PlayerList
+                                otherPlayers={otherPlayers}
+                                me={me}
+                                phase={phase}
+                                canvasRefs={canvasRefs}
+                                onGuessClick={handleGuessClick}
+                            />
                        ) : (
                             <DrawingCanvas
                                 me={me}
@@ -401,7 +401,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
                                 onDraw={(data) => socket.emit('draw', { roomId, ...data })}
                                 onStrokeEnd={handleSaveCanvas}
                             />
-                       )}
+                       ))}
                    </div>
             </Card>
 
