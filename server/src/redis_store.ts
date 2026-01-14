@@ -3,38 +3,53 @@ import { Room } from './types';
 import { PictomaniaRound } from './games/pictomania/domain';
 import { UnoRound } from './games/uno/domain';
 
-const REDIS_URL = process.env.REDIS_URL || '';
+const REDIS_URL = process.env.REDIS_URL;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 
-if (REDIS_URL) {
-  console.log(`[Redis] Setup - Using REDIS_URL connection string.`);
-} else {
-  console.log(`[Redis] Setup - Using Host/Port: ${REDIS_HOST}:${REDIS_PORT}`);
-}
+// --- 修改部分開始 ---
+let redis: Redis;
 
-const redis = REDIS_URL 
-  ? new Redis(REDIS_URL, { lazyConnect: true }) 
-  : new Redis({
-      host: REDIS_HOST,
-      port: REDIS_PORT,
-      lazyConnect: true,
-    });
+if (REDIS_URL) {
+  console.log(`[Redis] Setup - Detected REDIS_URL. Connecting via connection string...`);
+  
+  // Upstash 的 rediss:// 必須處理 tls 參數
+  const isTls = REDIS_URL.startsWith('rediss://');
+  
+  redis = new Redis(REDIS_URL, {
+    lazyConnect: true,
+    // 關鍵設定：如果是 rediss:// 則必須開啟 TLS
+    tls: isTls ? { rejectUnauthorized: false } : undefined,
+    connectTimeout: 10000, // 增加連線超時，避免網路波動
+  });
+} else {
+  console.log(`[Redis] Setup - No URL found. Using Host/Port: ${REDIS_HOST}:${REDIS_PORT}`);
+  redis = new Redis({
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    lazyConnect: true,
+  });
+}
+// --- 修改部分結束 ---
 
 redis.on('error', (err) => {
-  // Suppress connection refused logs if running locally without redis
-  // console.error('[Redis] Error:', err.message);
+  // 只在非開發環境打印嚴重錯誤
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[Redis] Error event:', err.message);
+  }
 });
 
 let isRedisConnected = false;
 
 export const initRedis = async () => {
   try {
+    // 增加一點點延遲，確保環境變數完全載入
     await redis.connect();
     isRedisConnected = true;
-    console.log('[Redis] Connected successfully.');
-  } catch (e) {
-    console.warn('[Redis] Connection failed. Running in In-Memory only mode.');
+    console.log('[Redis] Connected successfully to the server.');
+  } catch (e: any) {
+    console.warn(`[Redis] Connection failed: ${e.message}`);
+    console.warn('[Redis] Running in In-Memory only mode.');
     isRedisConnected = false;
   }
 };
