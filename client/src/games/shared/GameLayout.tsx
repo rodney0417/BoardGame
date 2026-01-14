@@ -10,19 +10,16 @@ interface GameLayoutProps {
   reverseMobile?: boolean; // If true, sidebar shows ABOVE main on mobile
 }
 
-const GameLayout: React.FC<GameLayoutProps> = ({ 
-  sidebar, 
-  main, 
-  header, 
+const GameLayout: React.FC<GameLayoutProps> = ({
+  sidebar,
+  main,
+  header,
   footer,
   maxWidth = '1400px',
-  reverseMobile = false
+  reverseMobile = false,
 }) => {
   return (
-    <Container 
-      fluid 
-      style={{ maxWidth }}
-    >
+    <Container fluid style={{ maxWidth }}>
       <style>
         {`
           @media (max-width: 767px) {
@@ -49,7 +46,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
           }
         `}
       </style>
-      
+
       {/* Optional Header */}
       {header && (
         <Row className="flex-shrink-0 mt-0 mb-3 px-2 px-md-0">
@@ -61,29 +58,25 @@ const GameLayout: React.FC<GameLayoutProps> = ({
 
       <Row className="gx-0 gx-md-4 gy-2 gy-md-4 m-0 mt-0 flex-grow-1 mobile-column-layout align-items-stretch">
         {/* Main Column (Room List on Desktop) */}
-        <Col 
-            xs={12} 
-            md={sidebar ? 8 : 12} 
-            xl={sidebar ? 9 : 12} 
-            className={`${reverseMobile ? 'order-2 order-md-1 main-bottom' : 'order-1 order-md-1'}`}
+        <Col
+          xs={12}
+          md={sidebar ? 8 : 12}
+          xl={sidebar ? 9 : 12}
+          className={`${reverseMobile ? 'order-2 order-md-1 main-bottom' : 'order-1 order-md-1'}`}
         >
-          <div className="px-0 px-md-3">
-            {main}
-          </div>
+          {main}
         </Col>
 
         {/* Sidebar Column (Info on Desktop, Top on Mobile) */}
         {sidebar && (
-          <Col 
-            xs={12} 
-            md={4} 
-            xl={3} 
+          <Col
+            xs={12}
+            md={4}
+            xl={3}
             className={`d-flex flex-column ${reverseMobile ? 'order-1 order-md-2 sidebar-top' : 'order-2 order-md-2'}`}
           >
             {/* Desktop Sticky Sidebar */}
-            <div className="sticky-sidebar-desktop d-flex flex-column px-0 px-md-3">
-                {sidebar}
-            </div>
+            <div className="sticky-sidebar-desktop d-flex flex-column">{sidebar}</div>
           </Col>
         )}
       </Row>
@@ -91,9 +84,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
       {/* Optional Footer */}
       {footer && (
         <Row className="mt-3 mb-0 px-2 px-md-0">
-          <Col xs={12} className="px-0 px-md-3">
-            {footer}
-          </Col>
+          <Col xs={12}>{footer}</Col>
         </Row>
       )}
     </Container>

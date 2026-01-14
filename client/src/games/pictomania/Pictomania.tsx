@@ -16,9 +16,18 @@ import GameOver from '../shared/GameOver';
 import GameLayout from '../shared/GameLayout';
 
 import { PictomaniaPlayer, PictomaniaPhase, PictomaniaState } from './types';
-import { PICTOMANIA_LEVELS, PICTOMANIA_DRAW_TIMES, PICTOMANIA_CANVAS_WIDTH, PICTOMANIA_CANVAS_HEIGHT } from './constants';
+import {
+  PICTOMANIA_LEVELS,
+  PICTOMANIA_DRAW_TIMES,
+  PICTOMANIA_CANVAS_WIDTH,
+  PICTOMANIA_CANVAS_HEIGHT,
+} from './constants';
 import { useGameRoom } from '../shared/hooks/useGameRoom';
-import { SidebarSection, SidebarStat, HostSettingControl } from '../shared/components/SidebarModules';
+import {
+  SidebarSection,
+  SidebarStat,
+  HostSettingControl,
+} from '../shared/components/SidebarModules';
 
 interface PictomaniaSettings {
   difficulty: number;
@@ -33,18 +42,14 @@ interface PictomaniaProps {
   onLeaveRoom: () => void;
 }
 
-const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom }) => {
-  const { 
-    roomId, 
-    gameState, 
-    phase, 
-    players, 
-    me, 
-    isHost, 
-    otherPlayers, 
-    settings, 
-    timeLeft 
-  } = useGameRoom<PictomaniaState, PictomaniaSettings>(room, myInitialInfo.id);
+const Pictomania: React.FC<PictomaniaProps> = ({
+  socket,
+  room,
+  me: myInitialInfo,
+  onLeaveRoom,
+}) => {
+  const { roomId, gameState, phase, players, me, isHost, otherPlayers, settings, timeLeft } =
+    useGameRoom<PictomaniaState, PictomaniaSettings>(room, myInitialInfo.id);
 
   const { currentRound = 1, wordCards: cards = {}, history = [] } = (gameState || {}) as any;
 
@@ -100,7 +105,9 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
     socket.on('draw', handleDraw);
     socket.on('clear_canvas', (data: any) => {
       if (data.playerId !== me.id && canvasRefs.current[data.playerId]) {
-        canvasRefs.current[data.playerId]?.getContext('2d')?.clearRect(0, 0, PICTOMANIA_CANVAS_WIDTH, PICTOMANIA_CANVAS_HEIGHT);
+        canvasRefs.current[data.playerId]
+          ?.getContext('2d')
+          ?.clearRect(0, 0, PICTOMANIA_CANVAS_WIDTH, PICTOMANIA_CANVAS_HEIGHT);
       }
     });
 
@@ -143,49 +150,50 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
     };
   }, [socket, roomId]);
 
-    // Recover Canvas State on Mount (and phase === 'playing')
-    useEffect(() => {
-        if (phase === 'playing' && !me.isDoneDrawing) {
-            const savedCanvas = localStorage.getItem('pictomania_canvas_backup');
-            if (savedCanvas && myCanvasRef.current) {
-                 const img = new Image();
-                 img.onload = () => {
-                     const ctx = myCanvasRef.current?.getContext('2d');
-                     if (ctx) {
-                         ctx.clearRect(0, 0, 1200, 800);
-                         ctx.drawImage(img, 0, 0);
-                     }
-                 };
-                 img.src = savedCanvas;
-            }
-        }
-    }, [phase, me.isDoneDrawing]); // Only run when entering playing phase or recovering
+  // Recover Canvas State on Mount (and phase === 'playing')
+  useEffect(() => {
+    if (phase === 'playing' && !me.isDoneDrawing) {
+      const savedCanvas = localStorage.getItem('pictomania_canvas_backup');
+      if (savedCanvas && myCanvasRef.current) {
+        const img = new Image();
+        img.onload = () => {
+          const ctx = myCanvasRef.current?.getContext('2d');
+          if (ctx) {
+            ctx.clearRect(0, 0, 1200, 800);
+            ctx.drawImage(img, 0, 0);
+          }
+        };
+        img.src = savedCanvas;
+      }
+    }
+  }, [phase, me.isDoneDrawing]); // Only run when entering playing phase or recovering
 
-    useEffect(() => {
-        // Clear backup when round changes or done drawing
-        if (me.isDoneDrawing || phase !== 'playing') {
-            localStorage.removeItem('pictomania_canvas_backup');
-        }
-    }, [currentRound, me.isDoneDrawing, phase]);
-
-
-  const startGame = () => socket.emit('start_game', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
-  const nextRound = () => socket.emit('next_round', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
-  const handleFinishDrawing = () => {
-      socket.emit('player_finish_drawing', roomId);
+  useEffect(() => {
+    // Clear backup when round changes or done drawing
+    if (me.isDoneDrawing || phase !== 'playing') {
       localStorage.removeItem('pictomania_canvas_backup');
+    }
+  }, [currentRound, me.isDoneDrawing, phase]);
+
+  const startGame = () =>
+    socket.emit('start_game', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
+  const nextRound = () =>
+    socket.emit('next_round', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
+  const handleFinishDrawing = () => {
+    socket.emit('player_finish_drawing', roomId);
+    localStorage.removeItem('pictomania_canvas_backup');
   };
   const handleClearCanvas = () => {
     myCanvasRef.current?.getContext('2d')?.clearRect(0, 0, 1200, 800);
     socket.emit('clear_canvas', roomId);
     localStorage.removeItem('pictomania_canvas_backup');
   };
-  
+
   const handleSaveCanvas = () => {
-      if (myCanvasRef.current) {
-          const dataUrl = myCanvasRef.current.toDataURL();
-          localStorage.setItem('pictomania_canvas_backup', dataUrl);
-      }
+    if (myCanvasRef.current) {
+      const dataUrl = myCanvasRef.current.toDataURL();
+      localStorage.setItem('pictomania_canvas_backup', dataUrl);
+    }
   };
 
   const handleGuessClick = (player: PictomaniaPlayer) => {
@@ -214,32 +222,30 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
   const currentDifficulty = settings?.difficulty || 1;
   const currentDrawTime = settings?.drawTime || 60;
 
-
-
   const updateSetting = (key: 'difficulty' | 'drawTime', value: number) => {
     if (!isHost) return;
-    
+
     // Server Authority: Just emit, UI updates on broadcast
     socket.emit('update_settings', {
-      [key]: value
+      [key]: value,
     });
   };
 
   // Host Controls
   const hostControls = (
     <SidebarSection>
-      <HostSettingControl 
-        label="難度等級" 
-        options={[...PICTOMANIA_LEVELS]} 
-        currentValue={currentDifficulty} 
-        onSelect={(val) => updateSetting('difficulty', val)} 
-        isHost={isHost} 
+      <HostSettingControl
+        label="難度等級"
+        options={[...PICTOMANIA_LEVELS]}
+        currentValue={currentDifficulty}
+        onSelect={(val) => updateSetting('difficulty', val)}
+        isHost={isHost}
       />
-      <HostSettingControl 
-        label="繪畫時間" 
-        options={[...PICTOMANIA_DRAW_TIMES]} 
-        currentValue={currentDrawTime} 
-        onSelect={(val) => updateSetting('drawTime', val)} 
+      <HostSettingControl
+        label="繪畫時間"
+        options={[...PICTOMANIA_DRAW_TIMES]}
+        currentValue={currentDrawTime}
+        onSelect={(val) => updateSetting('drawTime', val)}
         isHost={isHost}
         unit="s"
       />
@@ -280,60 +286,47 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
   const gameInfoSection = (
     <SidebarSection>
       <div className="d-flex d-md-block gap-2 flex-wrap">
-        <SidebarStat 
-           label="目前回合" 
-           value={`${currentRound} / 5`} 
-           icon="🏁" 
-        />
-        {phase === 'playing' && (
-           <SidebarStat 
-              label="剩餘時間" 
-              value={`${timeLeft}s`} 
-              icon="⏱️" 
-           />
-        )}
+        <SidebarStat label="目前回合" value={`${currentRound} / 5`} icon="🏁" />
+        {phase === 'playing' && <SidebarStat label="剩餘時間" value={`${timeLeft}s`} icon="⏱️" />}
       </div>
     </SidebarSection>
   );
 
   const sidebarContent = (
     <>
-      <div className="d-none d-md-block">
-        {gameInfoSection}
-      </div>
+      <div className="d-none d-md-block">{gameInfoSection}</div>
 
       {hostControls && (
-        <div className="p-3 bg-white rounded-3 shadow-sm border">
-            {hostControls}
-        </div>
+        <div className="p-3 bg-white rounded-3 shadow-sm border">{hostControls}</div>
       )}
 
       <div className="mt-auto pt-4">
-        <Button 
-            variant="outline-danger" 
-            className="w-100 rounded-pill py-2 shadow-sm"
-            onClick={onLeaveRoom}
+        <Button
+          variant="outline-danger"
+          className="w-100 rounded-pill py-2 shadow-sm"
+          onClick={onLeaveRoom}
         >
-            離開房間
+          離開房間
         </Button>
       </div>
     </>
   );
 
-  const headerContent = (
-    <div className="d-md-none mb-3">
-      {gameInfoSection}
-    </div>
-  );
+  const headerContent = <div className="d-md-none mb-3">{gameInfoSection}</div>;
 
   const mainContent = (
-    <Card className="custom-card p-4 h-100 border-0 shadow-sm d-flex flex-column" style={{ minHeight: '400px' }}>
+    <Card
+      className="custom-card p-4 h-100 border-0 shadow-sm d-flex flex-column"
+      style={{ minHeight: '400px' }}
+    >
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex align-items-center gap-3">
           <h4 className="fw-bold m-0 text-dark">
-            {phase === 'round_ended' 
-              ? '本局結算' 
-              : (me.isDoneDrawing ? '請選擇玩家進行猜題' : '您的畫布')}
+            {phase === 'round_ended'
+              ? '本局結算'
+              : me.isDoneDrawing
+                ? '請選擇玩家進行猜題'
+                : '您的畫布'}
           </h4>
           {me.targetWord && !me.isDoneDrawing && (
             <div className="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
@@ -353,7 +346,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
               清空
             </Button>
             <Button
-              variant="primary" 
+              variant="primary"
               size="sm"
               className="rounded-pill px-4 fw-bold shadow-sm"
               onClick={handleFinishDrawing}
@@ -367,46 +360,40 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
       <div className="flex-grow-1 position-relative overflow-hidden">
         {phase === 'round_ended' ? (
           <div className="h-100 overflow-auto">
-            <RoundResultSummary 
-              players={players} 
-              history={history} 
-              currentRound={currentRound} 
-            />
+            <RoundResultSummary players={players} history={history} currentRound={currentRound} />
             {isHost && (
               <div className="text-center mt-4">
-                <Button 
-                  size="lg" 
-                  variant="dark" 
+                <Button
+                  size="lg"
+                  variant="dark"
                   className="rounded-pill px-5 shadow fw-bold"
                   onClick={nextRound}
                 >
-                  下一回合 <ArrowRight size={20} className="ms-2"/>
+                  下一回合 <ArrowRight size={20} className="ms-2" />
                 </Button>
               </div>
             )}
           </div>
-        ) : (
-          me.isDoneDrawing ? (
-            <div className="h-100 overflow-auto">
-                <PlayerList
-                  otherPlayers={otherPlayers}
-                  me={me}
-                  phase={phase}
-                  canvasRefs={canvasRefs}
-                  onGuessClick={handleGuessClick}
-                />
-            </div>
-          ) : (
-            <DrawingCanvas
+        ) : me.isDoneDrawing ? (
+          <div className="h-100 overflow-auto">
+            <PlayerList
+              otherPlayers={otherPlayers}
               me={me}
               phase={phase}
-              canvasRef={myCanvasRef}
-              isDrawingRef={isDrawing}
-              lastPosRef={lastPos}
-              onDraw={(data) => socket.emit('draw', { roomId, ...data })}
-              onStrokeEnd={handleSaveCanvas}
+              canvasRefs={canvasRefs}
+              onGuessClick={handleGuessClick}
             />
-          )
+          </div>
+        ) : (
+          <DrawingCanvas
+            me={me}
+            phase={phase}
+            canvasRef={myCanvasRef}
+            isDrawingRef={isDrawing}
+            lastPosRef={lastPos}
+            onDraw={(data) => socket.emit('draw', { roomId, ...data })}
+            onStrokeEnd={handleSaveCanvas}
+          />
         )}
       </div>
 
