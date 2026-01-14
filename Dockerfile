@@ -1,41 +1,53 @@
-# Stage 1: 前端編譯 (注意 as 必須是小寫且與後面一致)
+# ==========================================
+# Stage 1: 前端編譯 (React)
+# ==========================================
 FROM node:20-alpine AS frontend-build
 WORKDIR /app/client
-# 先複製 package.json 安裝依賴
 COPY client/package*.json ./
 RUN npm install
-# 複製前端原始碼並編譯
 COPY client/ ./
 RUN npm run build
 
-# Stage 2: 後端編譯
+# ==========================================
+# Stage 2: 後端編譯 (Node.js + TypeScript)
+# ==========================================
 FROM node:20-alpine AS backend-build
-WORKDIR /app/server
-COPY server/package*.json ./
-RUN npm install
-# 複製後端原始碼與 shared
-COPY server/ ./
-COPY shared/ ../shared/
-# 強制執行 TypeScript 編譯 (產生 dist)
-RUN npx tsc --outDir dist --rootDir . --skipLibCheck
+WORKDIR /app
+# 複製後端與共享代碼
+COPY server/package*.json ./server/
+RUN cd server && npm install
+COPY server/ ./server/
+COPY shared/ ./shared/
 
-# Stage 3: 最終運行環境
+# 執行編譯。我們從 /app 層級執行，rootDir 設為 . 
+# 這樣才能合法包含 ./server 和 ./shared
+RUN npx tsc --project server/tsconfig.json --rootDir . --outDir build --skipLibCheck
+
+# ==========================================
+# Stage 3: 最終運行環境 (Production)
+# ==========================================
 FROM node:20-alpine
 WORKDIR /app
 
-# 複製後端運行必要的 package.json 並安裝 Production 依賴
+# 只安裝生產環境需要的套件
 COPY server/package*.json ./
 RUN npm install --omit=dev
 
-# 關鍵：從之前的階段複製檔案 (請確認 --from 的名稱正確)
-COPY --from=backend-build /app/server/dist ./dist
+# 從 backend-build 複製編譯好的 JS 檔案
+# 注意：因為 rootDir 為 .，tsc 會保持目錄結構，
+# 你的入口檔案會出現在 build/server/src/index.js
+# 我們把它移到 dist 以便簡化啟動路徑
+COPY --from=backend-build /app/build/server/src ./dist
+# 複製編譯後的 shared (如果有的話) 或原始檔案
 COPY --from=backend-build /app/shared ../shared
-# 將前端編譯結果複製到後端的 public 目錄
+
+# 從 frontend-build 複製前端靜態檔案到後端指定的 public 目錄
 COPY --from=frontend-build /app/client/dist ./public
 
+# 設定環境變數
 ENV NODE_ENV=production
 ENV PORT=8000
 EXPOSE 8000
 
-# 使用 node 啟動
+# 啟動命令 (確保路徑指向 dist/index.js)
 CMD ["node", "dist/index.js"]
