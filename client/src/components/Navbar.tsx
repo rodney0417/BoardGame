@@ -9,7 +9,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) => {
   return (
-    <BSNavbar className="border-0 py-3 shadow-sm" style={{ background: 'rgba(220, 211, 203, 0.95)', backdropFilter: 'blur(10px)' }}>
+    <BSNavbar className="border-0 py-3 shadow-sm" style={{ background: 'rgba(180, 166, 155, 0.95)', backdropFilter: 'blur(10px)' }}>
       <Container>
         <BSNavbar.Brand className="fw-bold fs-4" style={{ color: '#4a4a4a' }}>
           🪐 萬遊引力

@@ -18,7 +18,7 @@ function App() {
   const { username, peerId, saveUsername, isLoggedIn } = useUser();
   const { roomList } = useLobby(socket);
 
-  const [appState, setAppState] = useState<'login' | 'lobby' | 'room'>('login');
+  const [appState, setAppState] = useState<'login' | 'lobby' | 'room'>(isLoggedIn ? 'lobby' : 'login');
   const [activeRoom, setActiveRoom] = useState<RoomDTO | null>(null);
   const [toasts, setToasts] = useState<any[]>([]);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
@@ -30,15 +30,6 @@ function App() {
     setToasts((prev) => [...prev, { type, message, id }]);
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   };
-
-  useEffect(() => {
-    // Determine initial state based on LocalStorage presence used by hook
-    if (isLoggedIn) {
-         // We might be in lobby or reconnecting room
-         // The reconnect logic below will decide
-         setAppState('lobby');
-    }
-  }, [isLoggedIn]);
 
   useEffect(() => {
     // Safety timeout

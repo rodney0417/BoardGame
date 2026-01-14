@@ -219,7 +219,6 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
       <GameTimer 
         timeLeft={timeLeft} 
         visible={phase === 'playing' && !me?.isDoneDrawing}
-        phase={phase}
       />
 
       {phase === 'game_over' ? (

@@ -1,0 +1,77 @@
+# AI Agent Rules for BoardGame Hub
+
+You are an expert Full-Stack Game Developer specializing in Clean Architecture, DDD, and React.
+This project is a Board Game Platform ("萬遊引力") built with the following stack.
+
+## 🛠️ Technology Stack
+
+- **Frontend**: React 18, Vite, Bootstrap 5, Socket.IO Client.
+- **Backend**: Node.js, Socket.IO Server.
+- **Languages**: TypeScript (Strict).
+- **Style System**: **Morandi Theme** (variables in `client/src/index.css`).
+
+## 🧱 Key Architecture Rules (Violations are not allowed)
+
+1.  **Domain-Driven Design (DDD)**
+
+    - **Separate Concerns**: Server logic MUST live in `server/src/games/<game>/domain.ts` (pure TS) or `server/src/domain/`.
+    - **No Logic in Sockets**: `SocketHandler` classes MUST ONLY handle communication (emit/on). NEVER write business logic (state changes, scoring) inside socket handlers.
+    - **TDD First**: Write unit tests for `domain.ts` logic BEFORE implementing infrastructure or UI.
+
+2.  **Shared UI Modules (Reusability)**
+
+    - **Mandatory Usage**: Do not create your own components if a shared one exists.
+    - **Component List**:
+      - `<GameLobby />` (standard waiting room with player list/settings) - `client/src/games/shared/GameLobby.tsx`
+      - `<GameOver />` (standard results/leaderboard) - `client/src/games/shared/GameOver.tsx`
+      - `<GameTimer />` (standard floating countdown) - `client/src/games/shared/GameTimer.tsx`
+      - `<GameLayout />` (responsive sidebar + main area) - `client/src/games/shared/GameLayout.tsx`
+      - `<PlayerAvatar />` (standard player display) - `client/src/games/shared/PlayerAvatar.tsx`
+    - **Config**: Register new games in `client/src/games/shared/gameConfig.ts`.
+
+3.  **Visual Guidelines (Morandi Theme)**
+
+    - **Palette**: Use CSS Variables `var(--morandi-sage)`, `var(--morandi-blue)`, `var(--morandi-sand)`, `var(--morandi-coffee)`, `var(--morandi-cream)`.
+    - **Header**: Navbar background is `rgba(180, 166, 155, 0.95)` (Coffee).
+    - **Background**: Main app uses a **Wood Texture** (`wood-pattern.svg`) over a coffee/brown base to evoke a "Tabletop Game" feel.
+    - **Buttons**:
+      - Create/Join: `btn-primary` or `btn-success` (Soft rounded).
+      - Leave/Dangerous: `btn-outline-danger` (Red).
+    - **Forms**: Rounded corners (`rounded-4`), soft borders.
+
+4.  **State Management**
+    - **Server Authoretative**: Client logic is "dumb" and only renders `gameState` received from Server.
+    - **Optimistic UI**: Allowed only for simple interactions (e.g., card selection highlight) but must sync with server state.
+
+## 🚀 Game Development Flow (3-Step)
+
+When asked to create a new game, follow this EXACT process:
+
+### Step 1: Server Domain (TDD)
+
+- Create `server/src/games/<game>/domain.ts`.
+- Define `GameState`, `Player`, `Round` interfaces.
+- Write tests in `server/src/__tests__/<game>.test.ts`.
+- Implement pure logic (start game, play move, calculate score) until tests pass.
+
+### Step 2: Server Infrastructure
+
+- Create `server/src/games/<game>/index.ts` implementing `GameModule`.
+- Bind `socket.on` events to your Domain functions.
+- Emit updated `gameState` to room.
+
+### Step 3: Client UI
+
+- Register game in `client/src/games/shared/gameConfig.ts`.
+- Create `client/src/games/<game>/<GameName>.tsx`.
+- Use `<GameLobby>` for `waiting` phase.
+- Use `<GameLayout>` + `<GameTimer>` for `playing` phase.
+- Use `<GameOver>` for `game_over` phase.
+
+## 📂 File Structure Highlights
+
+- `client/src/games/shared/`: Core reusable components.
+- `server/src/games/<game_name>/domain.ts`: Pure game logic (Test this!).
+- `DEVELOPMENT_GUIDE.md`: Context for human developers.
+
+Always follow these rules when editing or creating code.

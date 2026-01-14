@@ -145,9 +145,9 @@ h6 {
 }
 
 /* Navbar */
+/* Navbar */
 .navbar {
-  background: white !important;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #c5b8ad;
   box-shadow: var(--shadow-sm);
 }
 

@@ -136,30 +136,6 @@ if (phase === 'game_over') {
 - **陰影**：使用柔和陰影，避免純黑陰影。
 - **背景**：保持 `Navbar` 和 `Lobby` 的背景風格一致。
 
----
-
-### 5. 其他共用工具 (Shared Utils)
-
-為加速開發，我們還提供了以下工具：
-
-- **`<GameTimer>`**：統一的浮動倒數計時器。
-  ```tsx
-  <GameTimer timeLeft={60} phase="playing" />
-  ```
-- **`<GameLayout>`**：標準化的響應式版面（左側玩家列表 + 右側主畫面）。
-  ```tsx
-  <GameLayout
-    sidebar={<PlayerList ... />}
-    main={<Canvas ... />}
-  />
-  ```
-- **`<PlayerAvatar>`**：統一的玩家頭像與狀態顯示。
-  ```tsx
-  <PlayerAvatar username="Rodney" score={100} isTurn={true} />
-  ```
-
----
-
 ### 5. 其他共用工具 (Shared Utils)
 
 為加速開發，我們還提供了以下工具：

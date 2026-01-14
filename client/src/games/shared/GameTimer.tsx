@@ -3,7 +3,6 @@ import { Clock } from 'lucide-react';
 
 interface GameTimerProps {
   timeLeft: number;
-  phase?: string; // e.g., 'playing'
   visible?: boolean;
   position?: 'top-center' | 'top-right' | 'top-left';
   warningThreshold?: number; // default 10
@@ -11,7 +10,6 @@ interface GameTimerProps {
 
 const GameTimer: React.FC<GameTimerProps> = ({
   timeLeft,
-  phase,
   visible = true,
   position = 'top-center',
   warningThreshold = 10,
