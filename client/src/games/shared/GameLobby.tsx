@@ -121,7 +121,7 @@ const GameLobby: React.FC<GameLobbyProps> = ({
       </Row>
 
       {/* Entry Status Section */}
-      <div className="mt-2 mt-md-4 py-4 py-md-5 text-center bg-white rounded-4 shadow-sm border border-dashed border-2">
+      <div className="py-4 py-md-5 text-center bg-white rounded-4 shadow-sm border border-dashed border-2">
         <div className="mb-3 mb-md-4">
           {!canStart ? (
             <div className="text-muted">

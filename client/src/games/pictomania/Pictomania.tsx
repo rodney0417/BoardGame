@@ -227,7 +227,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
 
   // Host Controls
   const hostControls = (
-    <SidebarSection title="遊戲設定" isHost={isHost}>
+    <SidebarSection>
       <HostSettingControl 
         label="難度等級" 
         options={[...PICTOMANIA_LEVELS]} 
