@@ -9,7 +9,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) => {
   return (
-    <BSNavbar className="border-0 py-3" style={{ background: 'rgba(245, 240, 235, 0.95)', backdropFilter: 'blur(10px)' }}>
+    <BSNavbar className="border-0 py-3 shadow-sm" style={{ background: 'rgba(220, 211, 203, 0.95)', backdropFilter: 'blur(10px)' }}>
       <Container>
         <BSNavbar.Brand className="fw-bold fs-4" style={{ color: '#4a4a4a' }}>
           🪐 萬遊引力
@@ -34,9 +34,9 @@ const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) =>
           
           {onLeaveRoom && roomId && (
             <Button
-              variant="outline-secondary"
+              variant="outline-danger"
               size="sm"
-              className="rounded-pill"
+              className="rounded-pill px-3"
               onClick={onLeaveRoom}
             >
               離開房間

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const getPeerId = (): string => {
   let id = localStorage.getItem('pictomania_peerId');

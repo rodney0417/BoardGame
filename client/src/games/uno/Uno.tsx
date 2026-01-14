@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
-import { Container, Button, Badge, Card, Row, Col } from 'react-bootstrap';
+import { Container, Button, Card, Row, Col } from 'react-bootstrap';
 import { UnoCard as UnoCardType, UnoPlayer, CardColor } from './types';
 import UnoCardComponent from './components/UnoCard';
 import PlayerHand from './components/PlayerHand';
@@ -107,17 +107,25 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me }) => {
     );
   }
 
-
   if (phase === 'game_over') {
     const winnerId = gameState?.winner;
-    const winner = players.find((p: UnoPlayer) => p.id === winnerId) ||
+    const winner =
+      players.find((p: UnoPlayer) => p.id === winnerId) ||
       players.find((p: UnoPlayer) => (p as any).handCount === 0);
-    
+
     return (
       <GameOver
         gameType="uno"
-        players={players.map((p: UnoPlayer) => ({ id: p.id, username: p.username, score: p.score || 0 }))}
-        winner={winner ? { id: winner.id, username: winner.username, score: winner.score || 0 } : undefined}
+        players={players.map((p: UnoPlayer) => ({
+          id: p.id,
+          username: p.username,
+          score: p.score || 0,
+        }))}
+        winner={
+          winner
+            ? { id: winner.id, username: winner.username, score: winner.score || 0 }
+            : undefined
+        }
         onRestart={startGame}
         onBackToLobby={() => window.location.reload()}
       />

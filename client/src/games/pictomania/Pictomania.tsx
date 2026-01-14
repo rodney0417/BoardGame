@@ -5,7 +5,7 @@ import { Socket } from 'socket.io-client';
 import { RoomDTO } from '../../types';
 import { SymbolIcon } from './PictomaniaIcons';
 
-import FixedTimer from './components/FixedTimer';
+import GameTimer from '../shared/GameTimer';
 import GuessModal from './components/GuessModal';
 import GameOverView from './components/GameOverView';
 import DrawingCanvas from './components/DrawingCanvas';
@@ -216,7 +216,11 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
 
   return (
     <>
-      <FixedTimer phase={phase} timeLeft={timeLeft} isDoneDrawing={!!me?.isDoneDrawing} />
+      <GameTimer 
+        timeLeft={timeLeft} 
+        visible={phase === 'playing' && !me?.isDoneDrawing}
+        phase={phase}
+      />
 
       {phase === 'game_over' ? (
         <GameOverView players={players} history={history} onRestart={startGame} />

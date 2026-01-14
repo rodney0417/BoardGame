@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import { RoomListInfo } from '../../types';
 import { GAME_CONFIG, GameType } from '../../games/shared/gameConfig';
 

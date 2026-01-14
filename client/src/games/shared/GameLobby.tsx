@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Card, Button, Badge } from 'react-bootstrap';
+import { Container, Card, Button } from 'react-bootstrap';
 import { GAME_CONFIG, GameType } from './gameConfig';
 
 export interface GameLobbyPlayer {
