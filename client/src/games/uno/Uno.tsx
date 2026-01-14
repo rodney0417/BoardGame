@@ -6,6 +6,7 @@ import UnoCardComponent from './components/UnoCard';
 import PlayerHand from './components/PlayerHand';
 import ColorPicker from './components/ColorPicker';
 import GameLobby from '../shared/GameLobby';
+import GameOver from '../shared/GameOver';
 
 interface UnoProps {
   socket: Socket;
@@ -109,33 +110,17 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me }) => {
 
   if (phase === 'game_over') {
     const winnerId = gameState?.winner;
-    const winner =
-      players.find((p: UnoPlayer) => p.id === winnerId) ||
+    const winner = players.find((p: UnoPlayer) => p.id === winnerId) ||
       players.find((p: UnoPlayer) => (p as any).handCount === 0);
+    
     return (
-      <Container className="py-5" style={{ maxWidth: '800px' }}>
-        <Card
-          className="shadow-lg border-0"
-          style={{
-            background: 'linear-gradient(135deg, #fff 0%, #f8f9fa 100%)',
-            borderRadius: '16px',
-          }}
-        >
-          <Card.Body className="p-5 text-center">
-            <div className="display-1 mb-3">🏆</div>
-            <h2 className="display-4 fw-bold mb-3 text-dark">總冠軍</h2>
-            <h3 className="mb-4 text-primary fw-bold display-5">{winner?.username || '未知'}</h3>
-            <div className="d-inline-block px-4 py-2 bg-success text-white rounded-pill fs-3 fw-bold mb-5 shadow-sm">
-              最終得分：{winner?.score || 0} 分
-            </div>
-            <div>
-              <Button variant="outline-primary" size="lg" onClick={() => window.location.reload()}>
-                返回大廳
-              </Button>
-            </div>
-          </Card.Body>
-        </Card>
-      </Container>
+      <GameOver
+        gameType="uno"
+        players={players.map((p: UnoPlayer) => ({ id: p.id, username: p.username, score: p.score || 0 }))}
+        winner={winner ? { id: winner.id, username: winner.username, score: winner.score || 0 } : undefined}
+        onRestart={startGame}
+        onBackToLobby={() => window.location.reload()}
+      />
     );
   }
 
