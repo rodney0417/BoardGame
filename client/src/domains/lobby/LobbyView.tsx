@@ -32,16 +32,12 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
       if (isCreating) {
         setShowTimeModal(true);
       } else {
-        // Auto-select first available color
-        const taken = room.takenColors || [];
-        const availableColor = PLAYER_COLORS.find((c) => !taken.includes(c));
-        setActiveColor(availableColor || PLAYER_COLORS[0]);
-        setShowColorModal(true);
+        // Direct join for Pictomania (no color selection needed)
+        onJoinRoom(room.id, room.gameType);
       }
     } else {
-      // Direct join for other games (like UNO currently doesn't need setup?)
-      // Check if UNO needs color? Usually UNO doesn't need pre-selected color for join, but let's assume direct join.
-       onJoinRoom(room.id, room.gameType);
+      // Direct join for other games like UNO
+      onJoinRoom(room.id, room.gameType);
     }
   };
 
