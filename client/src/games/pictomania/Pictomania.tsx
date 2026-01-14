@@ -220,10 +220,8 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
     if (!isHost) return;
     
     // Server Authority: Just emit, UI updates on broadcast
-    socket.emit('game_event', {
-      roomId,
-      action: 'update_settings',
-      data: { [key]: value }
+    socket.emit('update_settings', {
+      [key]: value
     });
   };
 

@@ -35,7 +35,7 @@ export class SocketHandler {
     const gameEvents = [
         'start_game', 'player_finish_drawing', 'guess_word', 'player_finish_guessing',
         'upload_image', 'next_round', 'play_card', 'draw_card', 'pass_turn',
-        'call_uno', 'challenge_uno', 'get_hand'
+        'call_uno', 'challenge_uno', 'get_hand', 'update_settings'
     ];
     gameEvents.forEach((event) => {
         socket.on(event, (data) => this.handleGameEvent(socket, event, data));

@@ -245,6 +245,15 @@ const Uno: GameModule<UnoState, UnoSettings> = {
 
       return true; // Trigger broadcastRoomData
     },
+
+    update_settings: (io, room, socket, data) => {
+      if (room.phase !== 'waiting') return false;
+      
+      const { startingCards } = data;
+      if (startingCards) room.settings.startingCards = startingCards;
+      
+      return true;
+    },
   },
 
   onStartGame: (room) => {
