@@ -12,10 +12,10 @@ export const SidebarSection: React.FC<{ title: string; children: React.ReactNode
 );
 
 export const SidebarStat: React.FC<{ label: string; value: string | number; icon?: React.ReactNode }> = ({ label, value, icon }) => (
-  <div className="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 shadow-sm border mb-2">
-    <span className="text-muted small fw-bold">{label}</span>
-    <div className="d-flex align-items-center gap-2 bg-light px-3 py-1 rounded-pill border">
-      {icon && <span style={{ fontSize: '1rem' }}>{icon}</span>}
+  <div className="d-flex align-items-center justify-content-between p-2 p-md-3 bg-white rounded-3 shadow-sm border mb-2 flex-grow-1">
+    <span className="text-muted small fw-bold me-2">{label}</span>
+    <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+      {icon && <span style={{ fontSize: '0.9rem' }}>{icon}</span>}
       <span className="fw-bold text-dark small">{value}</span>
     </div>
   </div>

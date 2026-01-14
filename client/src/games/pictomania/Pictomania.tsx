@@ -277,9 +277,9 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
     );
   }
 
-  const sidebarContent = (
-    <>
-      <SidebarSection title="遊戲資訊" className="d-none d-lg-block">
+  const gameInfoSection = (
+    <SidebarSection title="遊戲資訊">
+      <div className="d-flex d-lg-block gap-2 flex-wrap">
         <SidebarStat 
            label="目前回合" 
            value={`${currentRound} / 5`} 
@@ -292,10 +292,18 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
               icon="⏱️" 
            />
         )}
-      </SidebarSection>
+      </div>
+    </SidebarSection>
+  );
+
+  const sidebarContent = (
+    <>
+      <div className="d-none d-lg-block">
+        {gameInfoSection}
+      </div>
 
       {hostControls && (
-        <div className="mt-2 p-3 bg-white rounded-3 shadow-sm border">
+        <div className="p-3 bg-white rounded-3 shadow-sm border">
             {hostControls}
         </div>
       )}
@@ -313,15 +321,8 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
   );
 
   const headerContent = (
-    <div className="d-flex d-lg-none justify-content-between align-items-center bg-white p-3 rounded-4 shadow-sm border mb-2">
-      <div className="d-flex align-items-center gap-2">
-         <span className="badge bg-dark rounded-pill">第 {currentRound} 輪</span>
-      </div>
-      {phase === 'playing' && (
-         <div className="d-flex align-items-center gap-2 bg-danger-subtle text-danger px-3 py-1 rounded-pill border border-danger-subtle fw-bold">
-            ⏱️ {timeLeft}s
-         </div>
-      )}
+    <div className="d-lg-none mb-3">
+      {gameInfoSection}
     </div>
   );
 
