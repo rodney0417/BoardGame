@@ -7,8 +7,11 @@ const REDIS_URL = process.env.REDIS_URL || '';
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 
-console.log(`[Redis] Setup - Env REDIS_HOST: '${process.env.REDIS_HOST}'`);
-console.log(`[Redis] Setup - Final Connection Target: ${REDIS_HOST}:${REDIS_PORT}`);
+if (REDIS_URL) {
+  console.log(`[Redis] Setup - Using REDIS_URL connection string.`);
+} else {
+  console.log(`[Redis] Setup - Using Host/Port: ${REDIS_HOST}:${REDIS_PORT}`);
+}
 
 const redis = REDIS_URL 
   ? new Redis(REDIS_URL, { lazyConnect: true }) 
