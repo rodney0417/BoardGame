@@ -308,7 +308,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
         </div>
       )}
 
-      <div className="mt-auto pt-4">
+      <div className="pt-4">
         <Button 
             variant="outline-danger" 
             className="w-100 rounded-pill py-2 shadow-sm"
@@ -334,7 +334,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me: myInitialInfo
       onLeave={onLeaveRoom}
       main={
         <>
-            <Card className="custom-card p-4 h-100 border-0 shadow-sm" style={{ minHeight: '600px' }}>
+            <Card className="custom-card p-4 h-100 border-0 shadow-sm" style={{ minHeight: '400px' }}>
                 
                 <div className="d-flex justify-content-between align-items-center mb-3">
                         <div className="d-flex align-items-center gap-3">
