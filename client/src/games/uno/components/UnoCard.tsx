@@ -1,5 +1,6 @@
 import React from 'react';
 import { UnoCard as UnoCardType, CardColor } from '../types';
+import { UNO_COLORS } from '../constants';
 
 interface UnoCardProps {
   card: UnoCardType;
@@ -7,14 +8,6 @@ interface UnoCardProps {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
-
-const COLOR_MAP: Record<CardColor, string> = {
-  red: '#e53935',
-  blue: '#1e88e5',
-  green: '#43a047',
-  yellow: '#fdd835',
-  wild: '#424242',
-};
 
 const VALUE_DISPLAY: Record<string, string> = {
   skip: '⊘',
@@ -25,7 +18,7 @@ const VALUE_DISPLAY: Record<string, string> = {
 };
 
 const UnoCard: React.FC<UnoCardProps> = ({ card, onClick, disabled = false, size = 'md' }) => {
-  const bgColor = COLOR_MAP[card.color];
+  const bgColor = UNO_COLORS[card.color]?.hex || '#424242';
   const displayValue = VALUE_DISPLAY[card.value] || card.value;
 
   const sizeStyles = {

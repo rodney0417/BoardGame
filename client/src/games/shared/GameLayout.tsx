@@ -8,6 +8,7 @@ interface GameLayoutProps {
   footer?: React.ReactNode;
   maxWidth?: string;
   reverseMobile?: boolean; // If true, sidebar shows below main on mobile
+  onLeave?: () => void;
 }
 
 const GameLayout: React.FC<GameLayoutProps> = ({ 
@@ -16,10 +17,26 @@ const GameLayout: React.FC<GameLayoutProps> = ({
   header, 
   footer,
   maxWidth = '1400px',
-  reverseMobile = false
+  reverseMobile = false,
+  onLeave
 }) => {
   return (
-    <Container fluid className="py-3" style={{ maxWidth }}>
+    <Container fluid className="py-3 position-relative" style={{ maxWidth, minHeight: '100vh' }}>
+      
+      {/* Mobile Exit Button (Fixed Top-Right) */}
+      {onLeave && (
+        <div className="d-lg-none position-absolute top-0 end-0 p-2" style={{ zIndex: 1050 }}>
+            <button 
+                className="btn btn-light shadow-sm rounded-circle d-flex align-items-center justify-content-center p-0 border"
+                style={{ width: '40px', height: '40px', opacity: 0.9 }}
+                onClick={onLeave}
+                title="離開房間"
+            >
+                <span className="text-danger fw-bold">✕</span>
+            </button>
+        </div>
+      )}
+
       {/* Optional Header (e.g., Stats, Round Info) */}
       {header && (
         <Row className="mb-3">
@@ -40,8 +57,11 @@ const GameLayout: React.FC<GameLayoutProps> = ({
         {/* Sidebar (Player List, Chat, etc.) */}
         {sidebar && (
           <Col xs={12} lg={4} xl={3}>
-            <div className="d-flex flex-column gap-3 h-100">
-              {sidebar}
+            {/* Desktop Sticky Sidebar */}
+            <div className="h-100 sticky-lg-top" style={{ top: '20px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto' }}>
+              <div className="d-flex flex-column gap-3 h-100">
+                {sidebar}
+              </div>
             </div>
           </Col>
         )}

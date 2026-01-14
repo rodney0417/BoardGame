@@ -144,18 +144,6 @@ h6 {
   font-weight: 500;
 }
 
-/* Navbar */
-/* Navbar */
-.navbar {
-  border-bottom: 1px solid #c5b8ad;
-  box-shadow: var(--shadow-sm);
-}
-
-.navbar-brand,
-.nav-link {
-  color: #5a5a5a !important;
-}
-
 /* Toast */
 .custom-toast {
   background: white !important;

@@ -17,7 +17,8 @@ const GameOverView: React.FC<GameOverViewProps> = ({ players, history, onRestart
         <Button
           variant="primary"
           size="lg"
-          className="rounded-pill px-5 fw-bold"
+          className="rounded-pill px-5 fw-bold border-0 shadow"
+          style={{ background: 'linear-gradient(135deg, var(--morandi-blue), #8aa3b8)' }}
           onClick={onRestart}
         >
           <RotateCcw className="me-2" /> 再來一局
@@ -31,11 +32,16 @@ const GameOverView: React.FC<GameOverViewProps> = ({ players, history, onRestart
             .sort((a, b) => a.round - b.round);
           return (
             <Col xs={12} key={p.id}>
-              <Card className="custom-card border-0 overflow-hidden">
-                <Card.Header className="bg-transparent border-0 p-3">
+              <Card className="custom-card border-0 overflow-hidden shadow-sm" style={{ borderRadius: '20px' }}>
+                <Card.Header className="border-0 p-3" style={{ background: 'var(--morandi-cream)' }}>
                   <div className="d-flex align-items-center gap-2">
-                    <h4 className="m-0 text-dark fw-bold">{p.username} 的作品集</h4>
-                    <Badge bg="warning" text="dark" className="ms-auto fs-5">
+                    <h5 className="m-0 text-dark fw-bold" style={{ color: 'var(--text-color)' }}>{p.username} 的作品集</h5>
+                    <Badge 
+                        bg="light" 
+                        text="dark" 
+                        className="ms-auto fs-6 shadow-sm border" 
+                        style={{ color: 'var(--text-color)' }}
+                    >
                       總分: {p.score}
                     </Badge>
                   </div>

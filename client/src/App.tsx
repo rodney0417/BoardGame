@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { ToastContainer, Toast, Container } from 'react-bootstrap';
-import Navbar from './components/Navbar';
+
 import './index.css';
 
 import { useUser } from './domains/user/useUser';
@@ -10,6 +10,7 @@ import LoginView from './domains/user/LoginView';
 import LobbyView from './domains/lobby/LobbyView';
 import GameSessionView from './domains/game/GameSessionView';
 import { RoomDTO } from './types';
+import { APP_STORAGE_KEYS, AUTH_TIMEOUT, TOAST_DURATION, RECONNECT_DELAY } from './constants/appConstants';
 
 // Initialize global socket
 const socket: Socket = io();
@@ -33,11 +34,11 @@ function App() {
 
   useEffect(() => {
     // Safety timeout
-    const timer = setTimeout(() => setIsCheckingAuth(false), 2000);
+    const timer = setTimeout(() => setIsCheckingAuth(false), RECONNECT_DELAY);
 
     const handleConnect = () => {
-      const currentSavedRoom = localStorage.getItem('pictomania_current_room');
-      const currentSavedGameType = localStorage.getItem('pictomania_game_type');
+      const currentSavedRoom = localStorage.getItem(APP_STORAGE_KEYS.CURRENT_ROOM);
+      const currentSavedGameType = localStorage.getItem(APP_STORAGE_KEYS.GAME_TYPE);
 
       if (currentSavedRoom && username) {
         socket.emit('join_room', {
@@ -58,8 +59,8 @@ function App() {
     socket.on('room_data', (data: RoomDTO) => {
       setActiveRoom(data);
       setAppState('room');
-      localStorage.setItem('pictomania_current_room', data.id);
-      localStorage.setItem('pictomania_game_type', data.gameType);
+      localStorage.setItem(APP_STORAGE_KEYS.CURRENT_ROOM, data.id);
+      localStorage.setItem(APP_STORAGE_KEYS.GAME_TYPE, data.gameType);
       setIsCheckingAuth(false);
     });
 
@@ -117,8 +118,8 @@ function App() {
   const handleLeaveRoom = () => {
     if (activeRoom) {
         socket.emit('leave_room', { roomId: activeRoom.id, peerId });
-        localStorage.removeItem('pictomania_current_room');
-        localStorage.removeItem('pictomania_game_type');
+        localStorage.removeItem(APP_STORAGE_KEYS.CURRENT_ROOM);
+        localStorage.removeItem(APP_STORAGE_KEYS.GAME_TYPE);
         setActiveRoom(null);
         setAppState('lobby');
     }
@@ -159,7 +160,7 @@ function App() {
               isResolved = true;
               resolve('伺服器回應逾時，請檢查連線');
           }
-      }, 3000);
+      }, AUTH_TIMEOUT);
     });
   };
 
@@ -168,16 +169,10 @@ function App() {
   }
 
   return (
-    <div className="App" style={{ minHeight: '100vh', paddingBottom: '40px', paddingTop: '100px' }}>
-      <Navbar 
-        roomId={appState === 'room' ? `${activeRoom?.gameName || '未知'}` : undefined}
-        onCreateRoom={appState === 'lobby' ? () => setShowCreateModal(true) : undefined}
-        onLeaveRoom={appState === 'room' ? handleLeaveRoom : undefined}
-      />
-
+    <div className="App">
       <ToastContainer position="top-center" className="p-3" style={{ zIndex: 2000, position: 'fixed' }}>
         {toasts.map((t) => (
-          <Toast key={t.id} bg={t.type === 'success' ? 'success' : t.type === 'error' ? 'danger' : 'info'} className="custom-toast text-white" autohide delay={3000}>
+          <Toast key={t.id} bg={t.type === 'success' ? 'success' : t.type === 'error' ? 'danger' : 'info'} className="custom-toast text-white" autohide delay={TOAST_DURATION}>
             <Toast.Body className="fw-bold">
               {t.type === 'success' ? '🎯 ' : t.type === 'error' ? '❌ ' : 'ℹ️ '}
               {t.message}
@@ -187,9 +182,20 @@ function App() {
       </ToastContainer>
 
       {appState === 'lobby' ? (
-        <LobbyView roomList={roomList} onJoinRoom={handleJoinRoom} showCreateModal={showCreateModal} onCloseCreateModal={() => setShowCreateModal(false)} />
+        <LobbyView 
+          roomList={roomList} 
+          onJoinRoom={handleJoinRoom} 
+          showCreateModal={showCreateModal} 
+          onCloseCreateModal={() => setShowCreateModal(false)} 
+          onCreateModalOpen={() => setShowCreateModal(true)}
+        />
       ) : activeRoom && (
-        <GameSessionView socket={socket} activeRoom={activeRoom} me={activeRoom.players.find(p => p.peerId === peerId)!} />
+        <GameSessionView 
+            socket={socket} 
+            activeRoom={activeRoom} 
+            me={activeRoom.players.find(p => p.peerId === peerId)!} 
+            onLeaveRoom={handleLeaveRoom}
+        />
       )}
     </div>
   );

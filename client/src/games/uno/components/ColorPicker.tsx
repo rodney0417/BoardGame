@@ -1,5 +1,6 @@
 import React from 'react';
 import { CardColor } from '../types';
+import { UNO_COLORS } from '../constants';
 import { Modal, Button } from 'react-bootstrap';
 
 interface ColorPickerProps {
@@ -8,12 +9,11 @@ interface ColorPickerProps {
   onCancel: () => void;
 }
 
-const COLORS: { color: CardColor; bg: string; label: string }[] = [
-  { color: 'red', bg: '#e53935', label: '紅' },
-  { color: 'blue', bg: '#1e88e5', label: '藍' },
-  { color: 'green', bg: '#43a047', label: '綠' },
-  { color: 'yellow', bg: '#fdd835', label: '黃' },
-];
+const COLORS = (['red', 'blue', 'green', 'yellow'] as const).map(c => ({
+  color: c,
+  bg: UNO_COLORS[c].hex,
+  label: UNO_COLORS[c].label
+}));
 
 const ColorPicker: React.FC<ColorPickerProps> = ({ show, onSelect, onCancel }) => {
   return (

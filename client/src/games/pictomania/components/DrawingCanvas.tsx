@@ -1,4 +1,5 @@
 import { PictomaniaPlayer, PictomaniaPhase } from '../types';
+import { PICTOMANIA_CANVAS_WIDTH, PICTOMANIA_CANVAS_HEIGHT } from '../constants';
 
 interface DrawingCanvasProps {
   me: PictomaniaPlayer;
@@ -24,8 +25,8 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     isDrawingRef.current = true;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
-      const x = (e.clientX - rect.left) * (1200 / rect.width);
-      const y = (e.clientY - rect.top) * (800 / rect.height);
+      const x = (e.clientX - rect.left) * (PICTOMANIA_CANVAS_WIDTH / rect.width);
+      const y = (e.clientY - rect.top) * (PICTOMANIA_CANVAS_HEIGHT / rect.height);
       lastPosRef.current = { x, y };
     }
   };
@@ -35,8 +36,8 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const ctx = canvasRef.current.getContext('2d');
     const rect = canvasRef.current.getBoundingClientRect();
     if (ctx && rect) {
-      const x = (e.clientX - rect.left) * (1200 / rect.width);
-      const y = (e.clientY - rect.top) * (800 / rect.height);
+      const x = (e.clientX - rect.left) * (PICTOMANIA_CANVAS_WIDTH / rect.width);
+      const y = (e.clientY - rect.top) * (PICTOMANIA_CANVAS_HEIGHT / rect.height);
 
       ctx.beginPath();
       ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y);
@@ -63,8 +64,8 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const touch = e.touches[0];
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
-      const x = (touch.clientX - rect.left) * (1200 / rect.width);
-      const y = (touch.clientY - rect.top) * (800 / rect.height);
+      const x = (touch.clientX - rect.left) * (PICTOMANIA_CANVAS_WIDTH / rect.width);
+      const y = (touch.clientY - rect.top) * (PICTOMANIA_CANVAS_HEIGHT / rect.height);
       isDrawingRef.current = true;
       lastPosRef.current = { x, y };
     }
@@ -76,8 +77,8 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const ctx = canvasRef.current.getContext('2d');
     const rect = canvasRef.current.getBoundingClientRect();
     if (ctx && rect) {
-      const x = (touch.clientX - rect.left) * (1200 / rect.width);
-      const y = (touch.clientY - rect.top) * (800 / rect.height);
+      const x = (touch.clientX - rect.left) * (PICTOMANIA_CANVAS_WIDTH / rect.width);
+      const y = (touch.clientY - rect.top) * (PICTOMANIA_CANVAS_HEIGHT / rect.height);
 
       ctx.beginPath();
       ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y);
@@ -110,8 +111,8 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     <div className="canvas-wrapper p-1 bg-light rounded-2 shadow-sm">
       <canvas
         ref={canvasRef}
-        width={1200}
-        height={800}
+        width={PICTOMANIA_CANVAS_WIDTH}
+        height={PICTOMANIA_CANVAS_HEIGHT}
         style={{
           width: '100%',
           height: 'auto',

@@ -1,6 +1,8 @@
 import React from 'react';
-import { Container, Card, Button, Badge } from 'react-bootstrap';
+import { Card, Button, Badge } from 'react-bootstrap';
+import { Trophy, Users, RotateCcw, Home, Info } from 'lucide-react';
 import { GAME_CONFIG, GameType } from './gameConfig';
+import GameLayout from './GameLayout';
 
 export interface GameOverPlayer {
   id: string;
@@ -29,78 +31,98 @@ const GameOver: React.FC<GameOverProps> = ({
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
   const topPlayer = winner || sortedPlayers[0];
 
-  return (
-    <Container className="py-5" style={{ maxWidth: '600px' }}>
-      <Card
-        className="border-0 overflow-hidden text-center"
-        style={{
-          background: config.gradient,
-          borderRadius: '24px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-        }}
-      >
-        {/* Header */}
-        <div className="py-5">
-          <div className="display-1 mb-2">🏆</div>
-          <h2 className="fw-bold mb-0" style={{ color: '#4a4a4a' }}>遊戲結束</h2>
-        </div>
+  const sidebarContent = (
+    <>
+      <div className="text-center mb-4 p-4 rounded-4 shadow-sm border" style={{ background: config.gradient }}>
+        <div className="display-4 mb-2">{config.icon}</div>
+        <h4 className="fw-bold m-0 text-dark">遊戲結束</h4>
+      </div>
 
-        {/* Content */}
-        <Card.Body className="bg-white mx-3 mb-3 p-4" style={{ borderRadius: '16px' }}>
-          {/* Winner */}
-          {topPlayer && (
-            <div className="mb-4">
-              <div className="small text-muted mb-1">冠軍</div>
-              <h3 className="fw-bold mb-1">{topPlayer.username}</h3>
-              <Badge bg="success" className="rounded-pill px-3 py-2 fs-6">
-                {topPlayer.score} 分
-              </Badge>
-            </div>
-          )}
+      <div className="flex-grow-1">
+        <h6 className="m-0 fw-bold text-secondary d-flex align-items-center gap-2 mb-3 px-2">
+            <Users size={18} /> 最終排行榜
+        </h6>
 
-          {/* Leaderboard */}
-          <div className="mb-4">
+        <div className="d-flex flex-column gap-2 mb-4">
             {sortedPlayers.map((p, idx) => (
-              <div 
+              <div
                 key={p.id}
-                className="d-flex align-items-center justify-content-between py-2 border-bottom"
+                className="p-3 rounded-4 d-flex align-items-center justify-content-between transition-all bg-white border shadow-sm"
+                style={{
+                  borderLeft: idx === 0 ? '4px solid #ffd700' : '1px solid #eee'
+                }}
               >
-                <div className="d-flex align-items-center gap-2">
-                  <span className="small text-muted" style={{ width: '20px' }}>
-                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}
-                  </span>
-                  <span className="fw-medium">{p.username}</span>
+                <div className="d-flex align-items-center gap-3">
+                    <span className="fs-5">
+                       {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}
+                    </span>
+                    <span className="fw-bold text-dark">{p.username}</span>
                 </div>
-                <span className="fw-bold">{p.score}</span>
+                <Badge bg="light" text="dark" className="border px-3 py-2">
+                    {p.score} 分
+                </Badge>
               </div>
             ))}
-          </div>
+        </div>
+      </div>
 
-          {/* Game-specific content */}
-          {children}
-
-          {/* Actions */}
-          <div className="d-flex gap-2">
-            <Button
-              className="flex-fill rounded-4 py-3 fw-bold border-0"
-              style={{ background: config.gradient }}
-              onClick={onRestart}
-            >
-              再來一局
-            </Button>
-            {onBackToLobby && (
-              <Button
-                variant="outline-secondary"
-                className="rounded-4 py-3"
+      {onBackToLobby && (
+        <div className="mt-auto pt-4 border-top">
+            <Button 
+                variant="outline-secondary" 
+                className="w-100 rounded-pill py-2 shadow-sm d-flex align-items-center justify-content-center gap-2 mb-3"
                 onClick={onBackToLobby}
-              >
-                返回大廳
-              </Button>
-            )}
-          </div>
-        </Card.Body>
-      </Card>
-    </Container>
+            >
+                <Home size={18} /> 返回大廳
+            </Button>
+            <Button 
+                variant="dark" 
+                className="w-100 rounded-pill py-3 shadow-sm d-flex align-items-center justify-content-center gap-2 fw-bold"
+                onClick={onRestart}
+            >
+                <RotateCcw size={18} /> 再來一局
+            </Button>
+        </div>
+      )}
+    </>
+  );
+
+  const mainContent = (
+    <div className="d-flex flex-column gap-4">
+        <Card className="border-0 shadow-lg rounded-4 overflow-hidden text-center bg-white p-5">
+            <div className="mb-4">
+                <div className="display-1 mb-3 animate-bounce">🏆</div>
+                <h1 className="fw-black text-dark display-5 mb-2">勝利屬於：{topPlayer?.username}</h1>
+                <p className="text-muted fs-4">恭喜獲得本場冠軍！</p>
+            </div>
+            
+            <div className="d-inline-flex align-items-center justify-content-center bg-light rounded-pill px-5 py-3 border shadow-inner">
+                <span className="text-secondary fw-bold me-2 fs-5">最終得分：</span>
+                <span className="text-dark fw-black display-6" style={{ color: config.color }}>{topPlayer?.score}</span>
+            </div>
+        </Card>
+
+        {children && (
+            <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
+                <div className="bg-light p-3 border-bottom d-flex align-items-center gap-2">
+                    <Info size={20} className="text-primary" />
+                    <h6 className="m-0 fw-bold">遊戲結算回顧</h6>
+                </div>
+                <Card.Body className="p-4">
+                    {children}
+                </Card.Body>
+            </Card>
+        )}
+    </div>
+  );
+
+  return (
+    <GameLayout
+      maxWidth="1400px"
+      sidebar={sidebarContent}
+      main={mainContent}
+      reverseMobile={true}
+    />
   );
 };
 

@@ -31,6 +31,7 @@ export interface RoomListInfo {
   phase: string;
   takenColors: string[];
   settings?: any;
+  ownerName?: string;
 }
 
 // Pictomania 專用的歷史記錄結構 (放在這裡方便前後端共用)

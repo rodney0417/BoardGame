@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Button, Modal, Form } from 'react-bootstrap';
+import { Row, Col, Button, Modal, Form, Card } from 'react-bootstrap';
+import { Plus, Users, Gamepad2 } from 'lucide-react';
 import { RoomListInfo } from '../../types';
 import { GAME_CONFIG, GameType } from '../../games/shared/gameConfig';
+import GameLayout from '../../games/shared/GameLayout';
 
 interface LobbyViewProps {
   roomList: RoomListInfo[];
   onJoinRoom: (roomId: string, gameType: string) => void;
   showCreateModal: boolean;
   onCloseCreateModal: () => void;
+  onCreateModalOpen: () => void;
 }
 
-const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateModal, onCloseCreateModal }) => {
+const LobbyView: React.FC<LobbyViewProps> = ({ 
+  roomList, 
+  onJoinRoom, 
+  showCreateModal, 
+  onCloseCreateModal,
+  onCreateModalOpen
+}) => {
   const [selectedGame, setSelectedGame] = useState<GameType>('pictomania');
   const [createRoomName, setCreateRoomName] = useState<string>('');
 
@@ -21,107 +30,199 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
     setCreateRoomName('');
   };
 
+  const sidebarContent = (
+      <Card className="border-0 shadow-sm rounded-4 h-100 bg-white">
+          <Card.Body className="p-4 d-flex flex-column">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                  <div className="bg-dark text-white p-2 rounded-3">
+                      <Gamepad2 size={24} />
+                  </div>
+                  <div>
+                      <h4 className="fw-bold m-0">遊戲大廳</h4>
+                      <div className="small text-muted">{roomList.length} 個房間</div>
+                  </div>
+              </div>
+
+               <p className="text-secondary small mb-4">
+                  歡迎來到桌遊大廳！選擇一個房間加入，或是創建您自己的遊戲。
+              </p>
+
+              <Button 
+                  variant="dark" 
+                  size="lg" 
+                  className="w-100 rounded-pill shadow-sm py-3 fw-bold mt-auto d-flex align-items-center justify-content-center gap-2"
+                  onClick={onCreateModalOpen}
+              >
+                  <Plus size={20} /> 創建房間
+              </Button>
+          </Card.Body>
+      </Card>
+  );
+
+  const mainContent = (
+      <>
+        {roomList.length === 0 ? (
+            <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-light py-5 text-center h-100 d-flex align-items-center justify-content-center">
+                <Card.Body className="py-5">
+                    <div className="mb-4 opacity-50">
+                        <img 
+                            src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" 
+                            alt="Empty" 
+                            width="100"
+                            style={{ filter: 'grayscale(100%)' }}
+                        />
+                    </div>
+                    <h5 className="fw-bold text-secondary mb-2">目前沒有活躍的房間</h5>
+                    <p className="text-muted small">成為第一個創建房間的玩家吧！</p>
+                </Card.Body>
+            </Card>
+        ) : (
+            <Row className="g-3">
+            {roomList.map((r) => {
+                const game = GAME_CONFIG[r.gameType as GameType] || { icon: '🎮', name: r.gameName, color: '#6c757d', gradient: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)' };
+                const disabled = r.phase === 'playing' || r.playerCount >= r.maxPlayers;
+                
+                return (
+                <Col xs={12} xl={6} key={r.id}>
+                    <Card 
+                    className={`h-100 border-0 shadow-sm rounded-4 transition-all-hover ${disabled ? 'opacity-75 grayscale' : ''}`}
+                    style={{ 
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                    }}
+                    onClick={() => !disabled && onJoinRoom(r.id, r.gameType)}
+                    >
+                        <Card.Body className="p-3 d-flex align-items-center gap-3">
+                            <div 
+                                className="rounded-3 d-flex align-items-center justify-content-center text-white shrink-0"
+                                style={{ 
+                                    width: '80px', 
+                                    height: '80px', 
+                                    background: game.gradient,
+                                    fontSize: '2rem'
+                                }}
+                            >
+                                {game.icon}
+                            </div>
+                            
+                            <div className="flex-grow-1 overflow-hidden">
+                                <div className="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 className="fw-bold m-0 text-truncate text-dark">{r.id}</h6>
+                                    {r.ownerName && <span className="badge bg-light text-secondary fw-normal small">{r.ownerName}</span>}
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <span className={`badge rounded-pill ${r.phase === 'playing' ? 'bg-secondary' : 'bg-success'} fw-normal`}>
+                                        {r.phase === 'playing' ? '遊戲中' : '等待中'}
+                                    </span>
+                                    <span className="text-muted small d-flex align-items-center gap-1">
+                                        <Users size={12} />
+                                        {r.playerCount}/{r.maxPlayers}
+                                    </span>
+                                    <span className="badge bg-light text-muted border fw-normal small ms-auto">
+                                        {game.name}
+                                    </span>
+                                </div>
+                            </div>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                );
+            })}
+            </Row>
+        )}
+      </>
+  );
+
   return (
-    <Container className="py-5" style={{ maxWidth: '800px' }}>
-      {roomList.length === 0 ? (
-        <div className="text-center py-5 text-muted">
-          <div className="display-1 mb-3 opacity-25">🎮</div>
-          <p>目前沒有房間</p>
-        </div>
-      ) : (
-        <Row className="g-3">
-          {roomList.map((r) => {
-            const game = GAME_CONFIG[r.gameType as GameType] || { icon: '🎮', name: r.gameName, color: '#6c757d' };
-            const disabled = r.phase === 'playing' || r.playerCount >= r.maxPlayers;
-            
-            return (
-              <Col xs={12} sm={6} key={r.id}>
-                <div 
-                  className={`p-4 rounded-4 ${disabled ? 'opacity-50' : ''}`}
-                  style={{ 
-                    background: '#fff',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    cursor: disabled ? 'not-allowed' : 'pointer',
-                  }}
-                  onClick={() => !disabled && onJoinRoom(r.id, r.gameType)}
-                >
-                  <div className="d-flex align-items-center justify-content-between mb-2">
-                    <span className="fs-4">{game.icon}</span>
-                    <span className="small text-muted">{r.playerCount}/{r.maxPlayers}</span>
-                  </div>
-                  <div className="fw-bold text-truncate">{r.id}</div>
-                  <div className="small text-muted">
-                    {r.phase === 'playing' ? '遊戲中' : '等待中'}
-                  </div>
-                </div>
-              </Col>
-            );
-          })}
-        </Row>
-      )}
+    <>
+     <GameLayout
+        sidebar={sidebarContent}
+        main={mainContent}
+        reverseMobile={true} 
+     />
+
+      {/* Floating Action Button for Mobile */}
+      <Button
+        variant="dark"
+        className="d-lg-none position-fixed bottom-0 end-0 m-4 rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+        style={{ width: '60px', height: '60px', zIndex: 1050 }}
+        onClick={onCreateModalOpen}
+      >
+        <Plus size={30} />
+      </Button>
 
       {/* Create Modal */}
-      <Modal show={showCreateModal} onHide={onCloseCreateModal} centered>
-        <Modal.Body className="p-0 overflow-hidden">
-          {/* Header with gradient */}
+      <Modal show={showCreateModal} onHide={onCloseCreateModal} centered contentClassName="rounded-4 border-0 overflow-hidden">
+        <Modal.Body className="p-0">
           <div 
-            className="text-center py-5"
+            className="text-center py-5 position-relative overflow-hidden"
             style={{ 
               background: GAME_CONFIG[selectedGame].gradient,
             }}
           >
-            <div className="display-3 mb-2">{GAME_CONFIG[selectedGame].icon}</div>
-            <h4 className="fw-bold mb-0" style={{ color: '#4a4a4a' }}>創建房間</h4>
+            <div className="display-1 mb-2 position-relative" style={{ zIndex: 2 }}>{GAME_CONFIG[selectedGame].icon}</div>
+            <h4 className="fw-bold mb-0 position-relative" style={{ color: '#4a4a4a', zIndex: 2 }}>創建房間</h4>
+             <div 
+                className="position-absolute translate-middle rounded-circle bg-white opacity-25"
+                style={{ width: '300px', height: '300px', top: '50%', left: '50%' }}
+             />
           </div>
           
-          <div className="p-4">
-            {/* Game Selector */}
+          <div className="p-4 bg-white">
             <div className="d-flex gap-2 mb-4">
               {(Object.keys(GAME_CONFIG) as GameType[]).map((key) => {
                 const info = GAME_CONFIG[key];
                 return (
                   <div
                     key={key}
-                    className="flex-fill text-center py-3 rounded-4"
+                    className="flex-fill text-center py-3 rounded-4 cursor-pointer transition-all"
                     style={{ 
-                      background: selectedGame === key ? '#f8f6f3' : 'transparent',
-                      border: selectedGame === key ? '2px solid #e5e0db' : '2px solid transparent',
+                      background: selectedGame === key ? '#f8f9fa' : 'transparent',
+                      border: selectedGame === key ? `2px solid ${info.color}` : '2px solid transparent',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
                     }}
                     onClick={() => setSelectedGame(key)}
                   >
                     <div className="fs-3 mb-1">{info.icon}</div>
-                    <div className="small fw-medium text-dark">{info.name}</div>
+                    <div className="small fw-bold text-dark">{info.name}</div>
                   </div>
                 );
               })}
             </div>
             
-            {/* Room Name Input */}
             <Form.Control
               type="text"
-              placeholder="輸入房間名稱..."
+              placeholder="給房間取個名字..."
               value={createRoomName}
               onChange={(e) => setCreateRoomName(e.target.value)}
-              className="rounded-4 px-4 py-3 mb-4 border-0"
-              style={{ background: '#f8f6f3', fontSize: '1.1rem' }}
+              className="rounded-4 px-4 py-3 mb-4 border-light bg-light form-control-lg"
               autoFocus
             />
             
-            {/* Create Button */}
             <Button
-              className="w-100 rounded-4 py-3 fw-bold border-0"
+              className="w-100 rounded-pill py-3 fw-bold border-0 shadow-sm"
               style={{ background: GAME_CONFIG[selectedGame].gradient }}
               onClick={handleCreateRoom}
               disabled={!createRoomName}
             >
-              開始遊戲
+              立即開始
             </Button>
           </div>
         </Modal.Body>
       </Modal>
-    </Container>
+
+      <style>
+        {`
+            .transition-all-hover:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
+            }
+            .grayscale {
+                filter: grayscale(1);
+            }
+        `}
+      </style>
+    </>
   );
 };
 

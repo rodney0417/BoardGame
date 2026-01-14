@@ -365,8 +365,31 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     },
 
     next_round: (io, room, socket, data) => {
-      // logic moved to start_game or handled here by passing data
-      return Pictomania.handlers['start_game'](io, room, socket, data);
+      // Only host can start next round
+      // if (socket.id !== room.players[0].id) return false; // Strict host check if needed
+
+      if (room.phase !== 'round_ended') return false;
+
+      if (room.gameState.currentRound < room.settings.totalRounds) {
+        room.gameState.currentRound++;
+        
+        if (Pictomania.startRound) Pictomania.startRound(room);
+        
+        // Broadcast new round start
+        io.to(room.id).emit('game_started', {
+          cards: room.gameState.wordCards,
+        });
+        
+        // Also emit room_data to sync phase and round number
+        io.to(room.id).emit('room_data', room);
+        
+        return true;
+      } else {
+        // Should have been game_over
+        room.phase = 'game_over';
+        io.to(room.id).emit('room_data', room);
+        return false;
+      }
     },
 
     player_finish_drawing: (io, room, socket, data) => {
