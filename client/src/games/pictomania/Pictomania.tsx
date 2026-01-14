@@ -126,12 +126,49 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
     };
   }, [socket, roomId]);
 
+    // Recover Canvas State on Mount (and phase === 'playing')
+    useEffect(() => {
+        if (phase === 'playing' && !me.isDoneDrawing) {
+            const savedCanvas = localStorage.getItem('pictomania_canvas_backup');
+            if (savedCanvas && myCanvasRef.current) {
+                 const img = new Image();
+                 img.onload = () => {
+                     const ctx = myCanvasRef.current?.getContext('2d');
+                     if (ctx) {
+                         ctx.clearRect(0, 0, 1200, 800);
+                         ctx.drawImage(img, 0, 0);
+                     }
+                 };
+                 img.src = savedCanvas;
+            }
+        }
+    }, [phase, me.isDoneDrawing]); // Only run when entering playing phase or recovering
+
+    useEffect(() => {
+        // Clear backup when round changes or done drawing
+        if (me.isDoneDrawing || phase !== 'playing') {
+            localStorage.removeItem('pictomania_canvas_backup');
+        }
+    }, [currentRound, me.isDoneDrawing, phase]);
+
+
   const startGame = () => socket.emit('start_game', { roomId, difficulty: selectedDifficulty, drawTime: selectedDrawTime });
   const nextRound = () => socket.emit('next_round', { roomId, difficulty: selectedDifficulty, drawTime: selectedDrawTime });
-  const stopDrawing = () => socket.emit('player_finish_drawing', roomId);
+  const stopDrawing = () => {
+      socket.emit('player_finish_drawing', roomId);
+      localStorage.removeItem('pictomania_canvas_backup');
+  };
   const requestClear = () => {
     myCanvasRef.current?.getContext('2d')?.clearRect(0, 0, 1200, 800);
     socket.emit('clear_canvas', roomId);
+    localStorage.removeItem('pictomania_canvas_backup');
+  };
+  
+  const handleSaveCanvas = () => {
+      if (myCanvasRef.current) {
+          const dataUrl = myCanvasRef.current.toDataURL();
+          localStorage.setItem('pictomania_canvas_backup', dataUrl);
+      }
   };
 
   const handleGuessClick = (player: PictomaniaPlayer) => {
@@ -345,7 +382,11 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
               </div>
 
               {phase === 'round_ended' ? (
-                <RoundResultSummary players={players} />
+                <RoundResultSummary 
+                    players={players} 
+                    history={history} 
+                    currentRound={currentRound} 
+                />
               ) : (
                 <DrawingCanvas
                   me={me}
@@ -354,6 +395,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
                   isDrawingRef={isDrawing}
                   lastPosRef={lastPos}
                   onDraw={(data) => socket.emit('draw', { roomId, ...data })}
+                  onStrokeEnd={handleSaveCanvas}
                 />
               )}
             </Card>

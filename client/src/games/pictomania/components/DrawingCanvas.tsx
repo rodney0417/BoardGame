@@ -7,6 +7,7 @@ interface DrawingCanvasProps {
   isDrawingRef: React.MutableRefObject<boolean>;
   lastPosRef: React.MutableRefObject<{ x: number; y: number }>;
   onDraw?: (data: { lastX: number; lastY: number; x: number; y: number; color: string }) => void;
+  onStrokeEnd?: () => void;
 }
 
 const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
@@ -16,6 +17,7 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   isDrawingRef,
   lastPosRef,
   onDraw,
+  onStrokeEnd,
 }) => {
   const handleMouseDown = (e: React.MouseEvent) => {
     if (phase !== 'playing' || me?.isDoneDrawing) return;
@@ -98,7 +100,10 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   };
 
   const handleStopDrawing = () => {
-    isDrawingRef.current = false;
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false;
+      onStrokeEnd?.();
+    }
   };
 
   return (

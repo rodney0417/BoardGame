@@ -203,17 +203,19 @@ export class SocketHandler {
 
        const game = games[room.gameType];
        if (game?.handlers && game.handlers[eventName]) {
-           const shouldUpdate = game.handlers[eventName](this.io, room, socket, data);
-           // Timer logic needs access to TimerService? Or trigger generic startTimer?
-           // Original had startRoomTimer(room) if (start_game or next_round)
-           // We might need to expose startTimer in RoomService or inject TimerService here too?
-           // Ideally SocketHandler shouldn't deal with infra details.
-           // But let's keep it functional. We can access timerService via roomService if we expose it, or just inject it.
-           // Simplest: Inject TimerService into SocketHandler.
-           if (shouldUpdate) {
-               this.broadcastRoomData(room.id);
-               this.roomService.saveRoom(room);
-           }
+        const shouldUpdate = game.handlers[eventName](this.io, room, socket, data);
+        
+        if (shouldUpdate) {
+            // Timer Logic: Start if playing, Stop otherwise
+            if (room.phase === 'playing') {
+                this.timerService.startRoomTimer(room, (id) => this.broadcastRoomData(id));
+            } else {
+                this.timerService.stopRoomTimer(room.id);
+            }
+
+            this.broadcastRoomData(room.id);
+            this.roomService.saveRoom(room);
+        }
        }
   }
 

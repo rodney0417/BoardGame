@@ -18,12 +18,7 @@ const Navbar: React.FC<NavbarProps> = ({ roomId, onCreateRoom, onLeaveRoom }) =>
         </BSNavbar.Brand>
         
         <div className="d-flex align-items-center gap-3">
-          {roomId && (
-            <div className={`d-flex align-items-center px-3 py-2 rounded-pill shadow-sm ${styles.roomBadge}`}>
-              <span className="me-2 fs-5 d-flex align-items-center" style={{ height: '24px', transform: 'translateY(-2px)' }}>🏠</span>
-              <span className={`fw-bold text-dark ${styles.roomId}`}>{roomId}</span>
-            </div>
-          )}
+
           
           {onCreateRoom && !roomId && (
             <Button
