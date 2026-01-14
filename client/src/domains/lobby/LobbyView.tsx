@@ -202,7 +202,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
             className="w-100 fw-bold rounded-pill"
             onClick={() => {
               setShowTimeModal(false);
-              setShowColorModal(true);
+              confirmJoin();
             }}
           >
             確認設定
