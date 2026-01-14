@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "..",
+    "rootDir": "./", 
     "outDir": "dist",
     "module": "commonjs",
     "target": "es6",
@@ -8,6 +8,10 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    },
     "types": ["node"]
   },
   "include": ["src/**/*", "../shared/**/*"]

@@ -1,40 +1,38 @@
-# Stage 1: Build Frontend
-FROM node:20-alpine as frontend-build
-WORKDIR /app
-COPY client/package*.json ./
-RUN npm install
-COPY client ./
-RUN npm run build
+# ... Stage 1 Frontend 不變 ...
 
 # Stage 2: Build Backend
 FROM node:20-alpine as backend-build
-WORKDIR /app
+WORKDIR /app/server
+# 複製 package.json
 COPY server/package*.json ./
 RUN npm install
-COPY server ./
-COPY shared ../shared
-# Build TypeScript
-RUN npm run build 2>/dev/null || npx tsc
 
-# Stage 3: Production Runtime
+# 複製 server 原始碼與 shared 代碼
+COPY server/ ./
+COPY shared/ ../shared/
+
+# 執行編譯 (這會產生 /app/server/dist)
+RUN npm run build
+
+# Stage 3: Production
 FROM node:20-alpine
 WORKDIR /app
 
-# Install dependencies (copy entire node_modules from build to include devDeps like tsx)
+# 複製執行環境
 COPY server/package*.json ./
-COPY server/tsconfig.json ./
+RUN npm install --omit=dev
 
-# Copy modules and source
-COPY --from=backend-build /app/node_modules ./node_modules
-COPY --from=backend-build /app/src ./src
-COPY --from=backend-build /shared ../shared
+# 從編譯階段複製結果
+# 注意：我們將 dist 內容複製到 /app/dist
+COPY --from=backend-build /app/server/dist ./dist
+COPY --from=backend-build /app/shared ../shared
 
-# Copy frontend build to public
+# 複製前端
 COPY --from=frontend-build /app/dist ./public
 
 ENV NODE_ENV=production
 ENV PORT=8000
-
 EXPOSE 8000
 
-CMD ["npm", "start"]
+# 啟動命令
+CMD ["node", "dist/index.js"]
