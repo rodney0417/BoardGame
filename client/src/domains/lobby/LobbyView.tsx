@@ -66,7 +66,10 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
           {/* Header with gradient */}
           <div 
             className="text-center py-5"
-            style={{ background: GAME_CONFIG[selectedGame].gradient }}
+            style={{ 
+              background: GAME_CONFIG[selectedGame].gradient,
+              borderRadius: '20px 20px 0 0',
+            }}
           >
             <div className="display-3 mb-2">{GAME_CONFIG[selectedGame].icon}</div>
             <h4 className="fw-bold mb-0" style={{ color: '#4a4a4a' }}>創建房間</h4>
