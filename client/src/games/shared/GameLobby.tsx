@@ -1,130 +1,98 @@
 import React from 'react';
 import { Container, Card, Button, Badge } from 'react-bootstrap';
+import { GAME_CONFIG, GameType } from './gameConfig';
 
 export interface GameLobbyPlayer {
   id: string;
   username: string;
-  color?: string;
 }
 
 export interface GameLobbyProps {
-  gameName: string;
-  gameIcon: string;
-  gradientColors: [string, string];
+  gameType: GameType;
   players: GameLobbyPlayer[];
   myId: string;
-  minPlayers: number;
-  maxPlayers: number;
   isHost: boolean;
   onStartGame: () => void;
-  rules?: string[];
   hostControls?: React.ReactNode;
 }
 
 const GameLobby: React.FC<GameLobbyProps> = ({
-  gameName,
-  gameIcon,
-  gradientColors,
+  gameType,
   players,
   myId,
-  minPlayers,
-  maxPlayers,
   isHost,
   onStartGame,
-  rules = [],
   hostControls,
 }) => {
-  const canStart = players.length >= minPlayers;
+  const config = GAME_CONFIG[gameType];
+  const canStart = players.length >= config.minPlayers;
 
   return (
-    <Container className="py-5" style={{ maxWidth: '600px' }}>
+    <Container className="py-5" style={{ maxWidth: '500px' }}>
       <Card
-        className="shadow-lg border-0 overflow-hidden"
+        className="border-0 overflow-hidden"
         style={{
-          background: `linear-gradient(135deg, ${gradientColors[0]} 0%, ${gradientColors[1]} 100%)`,
+          background: config.gradient,
           borderRadius: '24px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
         }}
       >
         {/* Header */}
-        <div className="text-center py-4 text-white">
-          <div className="display-1 mb-2">{gameIcon}</div>
-          <h2 className="fw-bold mb-1">{gameName}</h2>
-          <p className="opacity-75 mb-0">等待玩家加入中...</p>
+        <div className="text-center py-5">
+          <div className="display-1 mb-2">{config.icon}</div>
+          <h2 className="fw-bold mb-0" style={{ color: '#4a4a4a' }}>{config.name}</h2>
         </div>
 
-        {/* Player List */}
-        <Card.Body className="bg-white mx-3 mb-3" style={{ borderRadius: '16px' }}>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <span className="fw-bold text-dark">👥 玩家列表</span>
-            <Badge bg="primary" pill>
-              {players.length} / {maxPlayers}
-            </Badge>
-          </div>
-
+        {/* Content */}
+        <Card.Body className="bg-white mx-3 mb-3 p-4" style={{ borderRadius: '16px' }}>
+          {/* Player Pills */}
           <div className="d-flex flex-wrap gap-2 mb-4">
             {players.map((p, idx) => (
               <div
                 key={p.id}
-                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill shadow-sm"
+                className="px-3 py-2 rounded-pill"
                 style={{
-                  backgroundColor: idx === 0 ? '#fef3c7' : '#f1f5f9',
-                  border: p.id === myId ? `2px solid ${gradientColors[0]}` : 'none',
+                  background: p.id === myId ? '#f0f0f0' : '#fafafa',
+                  border: p.id === myId ? `2px solid ${config.color}` : '1px solid #eee',
                 }}
               >
-                <div
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    backgroundColor: p.color || gradientColors[0],
-                  }}
-                />
-                <span className="fw-medium small">{p.username}</span>
-                {idx === 0 && <span className="small">🏠</span>}
+                <span className="small fw-medium">{p.username}</span>
+                {idx === 0 && <span className="ms-1 small">🏠</span>}
               </div>
             ))}
           </div>
 
-          {/* Game Rules */}
-          {rules.length > 0 && (
-            <div className="bg-light p-3 rounded-3 small text-muted">
-              <div className="fw-bold text-dark mb-2">📖 遊戲規則</div>
-              <ul className="mb-0 ps-3">
-                {rules.map((rule, idx) => (
-                  <li key={idx}>{rule}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {/* Rules */}
+          <div className="small text-muted mb-4">
+            {config.rules.map((rule, idx) => (
+              <div key={idx} className="mb-1">• {rule}</div>
+            ))}
+          </div>
 
-          {/* Host Controls (e.g., difficulty selector) */}
+          {/* Host Controls */}
           {isHost && hostControls && (
-            <div className="mt-3 pt-3 border-top">
+            <div className="mb-4 pt-3 border-top">
               {hostControls}
             </div>
           )}
-        </Card.Body>
 
-        {/* Action Button */}
-        <div className="text-center pb-4 px-4">
+          {/* Action */}
           {isHost ? (
             <Button
-              variant="light"
-              size="lg"
-              className="w-100 fw-bold shadow"
-              style={{ borderRadius: '12px' }}
+              className="w-100 rounded-4 py-3 fw-bold border-0"
+              style={{ background: config.gradient }}
               onClick={onStartGame}
               disabled={!canStart}
             >
-              {canStart ? '🚀 開始遊戲' : `等待更多玩家 (至少 ${minPlayers} 人)`}
+              {canStart ? '開始遊戲' : `需要 ${config.minPlayers} 人以上`}
             </Button>
           ) : (
-            <div className="text-white opacity-75">
+            <div className="text-center text-muted py-2">
               <div className="spinner-border spinner-border-sm me-2" />
-              等待房主開始遊戲...
+              等待房主開始...
             </div>
           )}
-        </div>
+        </Card.Body>
       </Card>
     </Container>
   );

@@ -1,171 +1,197 @@
 :root {
-  /* Tabletop Theme Variables */
-  --primary-color: #5d4037; /* Warm Dark Brown (was Red) */
-  --secondary-color: #1565c0; /* Blue */
-  --accent-color: #ffca28; /* Gold/Yellow tokens */
-  --success-color: #2e7d32;
-  --danger-color: #c62828;
-  --warning-color: #ef6c00;
-  --info-color: #0288d1;
+  /* Morandi Color Palette - Soft, Muted, Elegant */
+  --morandi-sage: #a8b5a0;
+  --morandi-rose: #c9a9a6;
+  --morandi-blue: #9fb4c7;
+  --morandi-lavender: #b5a7c4;
+  --morandi-sand: #d4c5b5;
+  --morandi-gray: #9a9a9a;
+  --morandi-cream: #f5f0eb;
+  --morandi-brown: #a39080;
 
-  /* Tabletop Background (Wood) */
-  --bg-color: #4e342e; /* Dark Brown */
-  --bg-gradient-center: #795548; /* Lighter Brown */
-  --bg-gradient-edge: #3e2723; /* Darkest Brown */
+  /* Theme Variables */
+  --primary-color: #9fb4c7;
+  --secondary-color: #b5a7c4;
+  --accent-color: #c9a9a6;
+  --success-color: #a8b5a0;
+  --danger-color: #c9a9a6;
+  --warning-color: #d4c5b5;
+  --info-color: #9fb4c7;
 
-  /* Components: Paper/Card style */
-  --card-bg: #fdfbf7; /* Warm Off-white/Parchment */
-  --text-color: #2d3436; /* Ink Black */
-  --text-muted: #636e72;
+  /* Background */
+  --bg-color: #f5f0eb;
 
-  --border-radius: 12px;
-  --card-border: 1px solid #e0e0e0;
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+  /* Components */
+  --card-bg: #ffffff;
+  --text-color: #5a5a5a;
+  --text-muted: #8a8a8a;
+
+  --border-radius: 16px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background-color: #efebe9;
-  /* Generated Realistic Wood Texture (SVG) */
+  /* Wood texture background for tabletop game feel */
+  background-color: #6d5c4e;
   background-image: url('/src/assets/wood-pattern.svg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  font-family: 'Inter', 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Microsoft JhengHei',
+    sans-serif;
   color: var(--text-color);
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Card Style - Physical Paper Look */
+/* Cards - Clean, Minimal */
 .custom-card {
   background: var(--card-bg) !important;
-  border: 4px solid #fff !important; /* Thick white border like a photo or card */
+  border: none !important;
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   color: var(--text-color);
-  transition: transform 0.2s ease;
 }
 
-/* Title text styling */
+/* Typography */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  color: #3e2723; /* Dark Wood Brown */
-  font-weight: 800;
+  color: #4a4a4a;
+  font-weight: 600;
 }
 
 .text-primary {
-  color: #3e2723 !important; /* Overriding with Dark Brown */
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); /* Slight highlight below for "engraved" look */
-  font-weight: 800;
+  color: #5a5a5a !important;
 }
 
-/* Badge - Like plastic tokens */
-.ui-badge {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-weight: 700;
-  background: var(--primary-color);
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Toast styling */
-.custom-toast {
-  background: #34495e !important;
-  border: 2px solid #fff !important;
-  color: white !important;
-  box-shadow: var(--shadow-lg);
-}
-
-/* Navbar - Dark Wood Style */
-.navbar {
-  background: #3e2723 !important; /* Dark Wood */
-  border-bottom: 4px solid #5d4037;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.navbar-brand,
-.nav-link,
-.navbar-text {
-  color: #f1f8e9 !important;
-}
-
-/* Inputs - Paper style */
+/* Inputs */
 .form-control,
 .form-select {
-  background: #fff !important;
-  border: 2px solid #b0bec5 !important;
-  color: #333 !important;
-  border-radius: 8px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: #f8f6f3 !important;
+  border: 1px solid #e5e0db !important;
+  color: #5a5a5a !important;
+  border-radius: 12px;
 }
 
 .form-control:focus {
-  border-color: #ced4da !important;
-  box-shadow: none !important;
+  border-color: var(--morandi-blue) !important;
+  box-shadow: 0 0 0 3px rgba(159, 180, 199, 0.2) !important;
   outline: 0;
 }
 
-/* Buttons - 3D/Physical feel */
-.btn-primary {
-  background: var(--primary-color);
-  border: none;
-  border-bottom: 4px solid #3e2723;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: all 0.1s;
+/* Buttons - Soft, Rounded */
+.btn {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
-.btn-primary:active {
-  transform: translateY(2px);
-  border-bottom: 2px solid #3e2723;
+
+.btn-primary {
+  background: var(--morandi-blue);
+  border: none;
+  color: white;
+}
+.btn-primary:hover {
+  background: #8aa3b8;
 }
 
 .btn-success {
-  background: var(--success-color);
+  background: var(--morandi-sage);
   border: none;
-  border-bottom: 4px solid #1b5e20;
   color: white;
-  font-weight: bold;
 }
-.btn-success:active {
-  transform: translateY(2px);
-  border-bottom: 2px solid #1b5e20;
+.btn-success:hover {
+  background: #97a48f;
+}
+
+.btn-dark {
+  background: #6a6a6a;
+  border: none;
+}
+.btn-dark:hover {
+  background: #5a5a5a;
 }
 
 .btn-outline-secondary {
-  color: #5d4037;
-  border-color: #5d4037;
+  color: #7a7a7a;
+  border-color: #d5d0cb;
 }
 .btn-outline-secondary:hover {
-  background-color: #5d4037;
-  color: white;
+  background: #f5f0eb;
+  color: #5a5a5a;
+  border-color: #c5c0bb;
 }
 
-/* Game Components */
+/* Badges */
+.badge {
+  font-weight: 500;
+}
+
+/* Navbar */
+.navbar {
+  background: white !important;
+  border-bottom: 1px solid #eee;
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand,
+.nav-link {
+  color: #5a5a5a !important;
+}
+
+/* Toast */
+.custom-toast {
+  background: white !important;
+  border: 1px solid #eee !important;
+  color: #5a5a5a !important;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Modal */
+.modal-content {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Background utilities */
 .bg-light {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: #f8f6f3 !important;
 }
 
+/* Text utilities */
 .text-muted {
   color: var(--text-muted) !important;
 }
 
-/* Scrollbar */
+/* Scrollbar - Minimal */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #e0e0e0;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #8d6e63;
-  border-radius: 5px;
-  border: 2px solid #e0e0e0;
+  background: #d5d0cb;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5c0bb;
 }

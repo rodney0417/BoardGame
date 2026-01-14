@@ -178,20 +178,11 @@ const Pictomania: React.FC<PictomaniaProps> = ({ socket, room, me }) => {
   if (phase === 'waiting') {
     return (
       <GameLobby
-        gameName="妙筆神猜"
-        gameIcon="🎨"
-        gradientColors={['#f093fb', '#f5576c']}
-        players={players.map((p: PictomaniaPlayer) => ({ id: p.id, username: p.username, color: p.color }))}
+        gameType="pictomania"
+        players={players.map((p: PictomaniaPlayer) => ({ id: p.id, username: p.username }))}
         myId={me.id}
-        minPlayers={2}
-        maxPlayers={6}
         isHost={isHost}
         onStartGame={startGame}
-        rules={[
-          '每位玩家畫出自己的題目',
-          '觀察其他人的畫，猜測他們的題目',
-          '畫得越好、猜得越準，分數越高！',
-        ]}
         hostControls={difficultySelector}
       />
     );

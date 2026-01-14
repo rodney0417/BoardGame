@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form } from 'react-bootstrap';
 import { RoomListInfo } from '../../types';
+import { GAME_CONFIG, GameType } from '../../games/shared/gameConfig';
 
 interface LobbyViewProps {
   roomList: RoomListInfo[];
@@ -10,7 +11,7 @@ interface LobbyViewProps {
 }
 
 const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateModal, onCloseCreateModal }) => {
-  const [selectedGame, setSelectedGame] = useState<string>('pictomania');
+  const [selectedGame, setSelectedGame] = useState<GameType>('pictomania');
   const [createRoomName, setCreateRoomName] = useState<string>('');
 
   const handleCreateRoom = () => {
@@ -18,11 +19,6 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
     onJoinRoom(createRoomName, selectedGame);
     onCloseCreateModal();
     setCreateRoomName('');
-  };
-
-  const games = {
-    pictomania: { icon: '🎨', name: '妙筆神猜', color: '#f5576c' },
-    uno: { icon: '🎴', name: 'UNO', color: '#667eea' },
   };
 
   return (
@@ -35,7 +31,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
       ) : (
         <Row className="g-3">
           {roomList.map((r) => {
-            const game = games[r.gameType as keyof typeof games] || { icon: '🎮', name: r.gameName, color: '#6c757d' };
+            const game = GAME_CONFIG[r.gameType as GameType] || { icon: '🎮', name: r.gameName, color: '#6c757d' };
             const disabled = r.phase === 'playing' || r.playerCount >= r.maxPlayers;
             
             return (
@@ -70,35 +66,34 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
           {/* Header with gradient */}
           <div 
             className="text-center py-5"
-            style={{ 
-              background: selectedGame === 'uno' 
-                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            }}
+            style={{ background: GAME_CONFIG[selectedGame].gradient }}
           >
-            <div className="display-3 mb-2">{games[selectedGame as keyof typeof games]?.icon}</div>
-            <h4 className="text-white fw-bold mb-0">創建房間</h4>
+            <div className="display-3 mb-2">{GAME_CONFIG[selectedGame].icon}</div>
+            <h4 className="fw-bold mb-0" style={{ color: '#4a4a4a' }}>創建房間</h4>
           </div>
           
           <div className="p-4">
             {/* Game Selector */}
             <div className="d-flex gap-2 mb-4">
-              {Object.entries(games).map(([key, info]) => (
-                <div
-                  key={key}
-                  className="flex-fill text-center py-3 rounded-4"
-                  style={{ 
-                    background: selectedGame === key ? '#f8f9fa' : 'transparent',
-                    border: selectedGame === key ? '2px solid #dee2e6' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onClick={() => setSelectedGame(key)}
-                >
-                  <div className="fs-3 mb-1">{info.icon}</div>
-                  <div className="small fw-medium text-dark">{info.name}</div>
-                </div>
-              ))}
+              {(Object.keys(GAME_CONFIG) as GameType[]).map((key) => {
+                const info = GAME_CONFIG[key];
+                return (
+                  <div
+                    key={key}
+                    className="flex-fill text-center py-3 rounded-4"
+                    style={{ 
+                      background: selectedGame === key ? '#f8f6f3' : 'transparent',
+                      border: selectedGame === key ? '2px solid #e5e0db' : '2px solid transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onClick={() => setSelectedGame(key)}
+                  >
+                    <div className="fs-3 mb-1">{info.icon}</div>
+                    <div className="small fw-medium text-dark">{info.name}</div>
+                  </div>
+                );
+              })}
             </div>
             
             {/* Room Name Input */}
@@ -108,22 +103,18 @@ const LobbyView: React.FC<LobbyViewProps> = ({ roomList, onJoinRoom, showCreateM
               value={createRoomName}
               onChange={(e) => setCreateRoomName(e.target.value)}
               className="rounded-4 px-4 py-3 mb-4 border-0"
-              style={{ background: '#f8f9fa', fontSize: '1.1rem' }}
+              style={{ background: '#f8f6f3', fontSize: '1.1rem' }}
               autoFocus
             />
             
             {/* Create Button */}
             <Button
               className="w-100 rounded-4 py-3 fw-bold border-0"
-              style={{ 
-                background: selectedGame === 'uno' 
-                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              }}
+              style={{ background: GAME_CONFIG[selectedGame].gradient }}
               onClick={handleCreateRoom}
               disabled={!createRoomName}
             >
-              🚀 開始遊戲
+              開始遊戲
             </Button>
           </div>
         </Modal.Body>

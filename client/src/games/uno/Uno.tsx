@@ -97,20 +97,11 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me }) => {
   if (phase === 'waiting') {
     return (
       <GameLobby
-        gameName="UNO"
-        gameIcon="🎴"
-        gradientColors={['#667eea', '#764ba2']}
-        players={players.map((p: UnoPlayer) => ({ id: p.id, username: p.username, color: p.color }))}
+        gameType="uno"
+        players={players.map((p: UnoPlayer) => ({ id: p.id, username: p.username }))}
         myId={me.id}
-        minPlayers={2}
-        maxPlayers={10}
         isHost={room.players[0]?.id === me.id}
         onStartGame={startGame}
-        rules={[
-          '最先打完所有手牌的玩家獲勝',
-          '只剩一張牌時記得喊 UNO!',
-          '目標分數：500 分',
-        ]}
       />
     );
   }
