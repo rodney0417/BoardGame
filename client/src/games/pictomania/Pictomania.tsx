@@ -339,7 +339,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({
         {/* Round Info */}
         <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
           <span className="text-muted small fw-bold me-2 d-none d-lg-block">目前回合</span>
-          <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+          <div className="d-flex align-items-center gap-2">
             <span style={{ fontSize: '0.9rem' }}>🏁</span>
             <span className="fw-bold text-dark small">{currentRound} / 5</span>
           </div>
@@ -349,7 +349,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({
         {phase === 'playing' && (
           <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
             <span className="text-muted small fw-bold me-2 d-none d-lg-block">剩餘時間</span>
-            <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+            <div className="d-flex align-items-center gap-2">
               <span style={{ fontSize: '0.9rem' }}>⏱️</span>
               <span className="fw-bold text-dark small">{timeLeft}s</span>
             </div>

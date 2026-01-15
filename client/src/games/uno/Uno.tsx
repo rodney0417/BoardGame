@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUnoColorHex } from './constants';
+import { getUnoColorHex, getUnoColorName } from './constants';
 import { useGameRoom } from '../shared/hooks/useGameRoom';
 import { SidebarSection } from '../shared/components/SidebarModules';
 import { Socket } from 'socket.io-client';
@@ -164,7 +164,7 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
       {/* Active Color */}
       <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
         <span className="text-muted small fw-bold me-2 d-none d-lg-block">目前顏色</span>
-        <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+        <div className="d-flex align-items-center gap-2">
           <div
             style={{
               width: '16px',
@@ -173,14 +173,14 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
               backgroundColor: getUnoColorHex(activeColor),
             }}
           />
-          <span className="fw-bold text-dark small">{activeColor || '無'}</span>
+          <span className="fw-bold text-dark small">{getUnoColorName(activeColor)}</span>
         </div>
       </div>
 
       {/* Direction */}
       <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
         <span className="text-muted small fw-bold me-2 d-none d-lg-block">出牌方向</span>
-        <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+        <div className="d-flex align-items-center gap-2">
           <span
             style={{
               transform: direction === -1 ? 'scaleX(-1)' : 'none',
@@ -197,7 +197,7 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
       {/* Deck Size */}
       <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
         <span className="text-muted small fw-bold me-2 d-none d-lg-block">牌堆剩餘</span>
-        <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+        <div className="d-flex align-items-center gap-2">
           <span style={{ fontSize: '0.9rem' }}>🎴</span>
           <span className="fw-bold text-dark small">{deckSize || 0}</span>
         </div>
