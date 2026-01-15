@@ -364,10 +364,14 @@ const Pictomania: React.FC<PictomaniaProps> = ({
     </>
   );
 
-  const mainContent =
-    me.isDoneDrawing && phase === 'playing' ? (
-      // Guessing mode - show player canvases directly without Card wrapper
-      <>
+  // Refactored to keep PlayerList mounted (but hidden) so it captures draw events in background
+  const showGuessingInterface = me.isDoneDrawing && phase === 'playing';
+  const showDrawingInterface = !me.isDoneDrawing || phase === 'round_ended';
+
+  const mainContent = (
+    <>
+      {/* Guessing Interface (PlayerList) - Always mounted during playing to catch events, hidden when drawing */}
+      <div className={showGuessingInterface ? 'd-block' : 'd-none'}>
         <PlayerList
           otherPlayers={otherPlayers}
           me={me}
@@ -387,91 +391,98 @@ const Pictomania: React.FC<PictomaniaProps> = ({
           mySymbol={me?.symbolCard || ''}
           myNumber={me?.numberCard || 0}
         />
-      </>
-    ) : (
-      // Drawing mode or Round ended - show Card wrapper
-      <Card
-        className="custom-card p-4 h-100 border-0 shadow-sm d-flex flex-column"
-        style={{ minHeight: '400px' }}
-      >
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="d-flex align-items-center gap-3">
-            <h4 className="fw-bold m-0 text-dark">
-              {phase === 'round_ended' ? '本局結算' : '您的畫布'}
-            </h4>
-            {me.targetWord && !me.isDoneDrawing && (
-              <div className="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
-                <span className="badge bg-secondary rounded-pill me-2">#{me.numberCard}</span>
-                <span className="fw-bold text-dark">{me.targetWord}</span>
+      </div>
+
+      {/* Drawing Interface (Card) - Hidden when guessing */}
+      <div className={showDrawingInterface ? 'd-block h-100' : 'd-none'}>
+        <Card
+          className="custom-card p-4 h-100 border-0 shadow-sm d-flex flex-column"
+          style={{ minHeight: '400px' }}
+        >
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="d-flex align-items-center gap-3">
+              <h4 className="fw-bold m-0 text-dark">
+                {phase === 'round_ended' ? '本局結算' : '您的畫布'}
+              </h4>
+              {me.targetWord && !me.isDoneDrawing && (
+                <div className="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
+                  <span className="badge bg-secondary rounded-pill me-2">#{me.numberCard}</span>
+                  <span className="fw-bold text-dark">{me.targetWord}</span>
+                </div>
+              )}
+            </div>
+
+            {phase === 'playing' && !me.isDoneDrawing && (
+              <div className="d-flex gap-2">
+                <Button
+                  variant="link"
+                  className="text-muted text-decoration-none p-0 px-2"
+                  onClick={handleClearCanvas}
+                >
+                  清空
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="rounded-pill px-4 fw-bold shadow-sm"
+                  onClick={handleFinishDrawing}
+                >
+                  畫好了
+                </Button>
               </div>
             )}
           </div>
 
-          {phase === 'playing' && !me.isDoneDrawing && (
-            <div className="d-flex gap-2">
-              <Button
-                variant="link"
-                className="text-muted text-decoration-none p-0 px-2"
-                onClick={handleClearCanvas}
-              >
-                清空
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                className="rounded-pill px-4 fw-bold shadow-sm"
-                onClick={handleFinishDrawing}
-              >
-                畫好了
-              </Button>
-            </div>
-          )}
-        </div>
+          <div className="flex-grow-1 position-relative overflow-hidden">
+            {phase === 'round_ended' ? (
+              <div className="h-100 overflow-auto">
+                <RoundResultSummary
+                  players={players}
+                  history={history}
+                  currentRound={currentRound}
+                />
+                {isHost && (
+                  <div className="text-center mt-4">
+                    <Button
+                      size="lg"
+                      variant="dark"
+                      className="rounded-pill px-5 shadow fw-bold"
+                      onClick={nextRound}
+                    >
+                      下一回合 <ArrowRight size={20} className="ms-2" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <DrawingCanvas
+                me={me}
+                phase={phase}
+                canvasRef={myCanvasRef}
+                isDrawingRef={isDrawing}
+                lastPosRef={lastPos}
+                onDraw={(data) => socket.emit('draw', { roomId, ...data })}
+                onStrokeEnd={handleSaveCanvas}
+              />
+            )}
+          </div>
 
-        <div className="flex-grow-1 position-relative overflow-hidden">
-          {phase === 'round_ended' ? (
-            <div className="h-100 overflow-auto">
-              <RoundResultSummary players={players} history={history} currentRound={currentRound} />
-              {isHost && (
-                <div className="text-center mt-4">
-                  <Button
-                    size="lg"
-                    variant="dark"
-                    className="rounded-pill px-5 shadow fw-bold"
-                    onClick={nextRound}
-                  >
-                    下一回合 <ArrowRight size={20} className="ms-2" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <DrawingCanvas
-              me={me}
-              phase={phase}
-              canvasRef={myCanvasRef}
-              isDrawingRef={isDrawing}
-              lastPosRef={lastPos}
-              onDraw={(data) => socket.emit('draw', { roomId, ...data })}
-              onStrokeEnd={handleSaveCanvas}
-            />
-          )}
-        </div>
-
-        <GuessModal
-          show={showGuessModal}
-          onHide={() => setShowGuessModal(false)}
-          targetPlayer={targetPlayer}
-          cards={cards}
-          selectedSymbol={selectedSymbol}
-          onSymbolSelect={setSelectedSymbol}
-          onGuess={handleGuessSubmit}
-          usedNumbers={me?.myGuesses?.map((g: any) => g.number) || []}
-          mySymbol={me?.symbolCard || ''}
-          myNumber={me?.numberCard || 0}
-        />
-      </Card>
-    );
+          <GuessModal
+            show={showGuessModal}
+            onHide={() => setShowGuessModal(false)}
+            targetPlayer={targetPlayer}
+            cards={cards}
+            selectedSymbol={selectedSymbol}
+            onSymbolSelect={setSelectedSymbol}
+            onGuess={handleGuessSubmit}
+            usedNumbers={me?.myGuesses?.map((g: any) => g.number) || []}
+            mySymbol={me?.symbolCard || ''}
+            myNumber={me?.numberCard || 0}
+          />
+        </Card>
+      </div>
+    </>
+  );
 
   return (
     <GameLayout

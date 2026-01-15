@@ -526,6 +526,24 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
       return false;
     },
 
+    draw: (io, room, socket, data) => {
+        // Broadcast draw event to all other players (excluding sender usually handled by client, but here we broadcast to room)
+        // Client handles filtering out own events if needed, or we can use socket.broadcast.to(room.id)
+        // Using io.to(room.id) sends to everyone including sender, so client must filter "if (id !== me.id)"
+        io.to(room.id).emit('draw', {
+            playerId: socket.id,
+            ...data
+        });
+        return false; // No gameState change
+    },
+
+    clear_canvas: (io, room, socket, data) => {
+        io.to(room.id).emit('clear_canvas', {
+            playerId: socket.id
+        });
+        return false;
+    },
+
     update_settings: (io, room, socket, data) => {
         if (room.phase !== 'waiting') return false;
         
