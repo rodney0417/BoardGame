@@ -19,7 +19,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
   reverseMobile = false,
 }) => {
   return (
-    <Container fluid style={{ maxWidth }}>
+    <Container fluid className="py-3" style={{ maxWidth }}>
       <style>
         {`
           @media (max-width: 767px) {
@@ -37,10 +37,10 @@ const GameLayout: React.FC<GameLayoutProps> = ({
             }
           }
           @media (min-width: 768px) {
-            .sticky-sidebar-desktop {
+            .sticky-sidebar {
               position: sticky;
-              top: 10px;
-              height: calc(100vh - 20px);
+              top: 1rem;
+              max-height: calc(100vh - 2rem);
               overflow-y: auto;
             }
           }
@@ -56,7 +56,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
         </Row>
       )}
 
-      <Row className="gx-0 gx-md-4 gy-2 gy-md-4 m-0 mt-0 flex-grow-1 mobile-column-layout align-items-stretch">
+      <Row className="gx-0 gx-md-4 gy-3 gy-md-4 m-0 mt-0 flex-grow-1 mobile-column-layout">
         {/* Main Column (Room List on Desktop) */}
         <Col
           xs={12}
@@ -73,10 +73,9 @@ const GameLayout: React.FC<GameLayoutProps> = ({
             xs={12}
             md={4}
             xl={3}
-            className={`d-flex flex-column ${reverseMobile ? 'order-1 order-md-2 sidebar-top' : 'order-2 order-md-2'}`}
+            className={`${reverseMobile ? 'order-1 order-md-2 sidebar-top' : 'order-2 order-md-2'}`}
           >
-            {/* Desktop Sticky Sidebar */}
-            <div className="sticky-sidebar-desktop d-flex flex-column">{sidebar}</div>
+            <div className="sticky-sidebar d-flex flex-column">{sidebar}</div>
           </Col>
         )}
       </Row>

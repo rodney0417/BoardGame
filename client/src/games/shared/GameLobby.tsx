@@ -33,47 +33,17 @@ const GameLobby: React.FC<GameLobbyProps> = ({
 
   const sidebarContent = (
     <>
+      {/* Game Title */}
       <div
-        className="text-center mb-4 p-4 rounded-4 shadow-sm border"
+        className="text-center mb-0 mb-md-3 p-4 rounded-4 shadow-sm border"
         style={{ background: config.gradient }}
       >
         <div className="display-4 mb-2">{config.icon}</div>
         <h4 className="fw-bold m-0 text-dark">{config.name}</h4>
       </div>
 
-      <div className="d-flex align-items-center justify-content-between mb-3 px-2">
-        <h6 className="m-0 fw-bold text-secondary d-flex align-items-center gap-2">
-          <Users size={18} /> 玩家列表
-        </h6>
-        <Badge bg="light" text="dark" className="border">
-          {players.length} / {config.maxPlayers}
-        </Badge>
-      </div>
-
-      <div className="d-flex flex-column gap-2 mb-4">
-        {players.map((p, idx) => (
-          <div
-            key={p.id}
-            className="p-3 rounded-4 d-flex align-items-center justify-content-between transition-all"
-            style={{
-              background: p.id === myId ? '#f8f9fa' : 'white',
-              border: p.id === myId ? `2px solid ${config.color}` : '1px solid #eee',
-            }}
-          >
-            <div className="d-flex align-items-center gap-2">
-              <span className="fw-medium text-dark">{p.username}</span>
-              {p.id === myId && (
-                <Badge bg="primary" className="rounded-pill" style={{ fontSize: '0.6rem' }}>
-                  您
-                </Badge>
-              )}
-            </div>
-            {idx === 0 && <span className="small opacity-50">🏠 房主</span>}
-          </div>
-        ))}
-      </div>
-
-      <div>
+      {/* Leave Button - Desktop only */}
+      <div className="mt-auto d-none d-md-block">
         <Button
           variant="outline-danger"
           className="w-100 rounded-pill py-2 shadow-sm d-flex align-items-center justify-content-center gap-2"
@@ -87,6 +57,80 @@ const GameLobby: React.FC<GameLobbyProps> = ({
 
   const mainContent = (
     <div className="d-flex flex-column gap-3 gap-md-4">
+      {/* Combined Player List + Waiting Status Card - Now at top of main */}
+      <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
+        {/* Header */}
+        <div className="d-flex align-items-center justify-content-between p-3 border-bottom bg-light">
+          <h6 className="m-0 fw-bold text-secondary d-flex align-items-center gap-2">
+            <Users size={18} /> 玩家列表
+          </h6>
+          <Badge bg="light" text="dark" className="border">
+            {players.length} / {config.maxPlayers}
+          </Badge>
+        </div>
+
+        <Card.Body className="p-3">
+          {/* Player List - Horizontal on desktop, vertical on mobile */}
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            {players.map((p, idx) => (
+              <div
+                key={p.id}
+                className="p-2 px-3 rounded-3 d-flex align-items-center gap-2"
+                style={{
+                  background: p.id === myId ? '#f8f9fa' : 'white',
+                  border: p.id === myId ? `2px solid ${config.color}` : '1px solid #eee',
+                }}
+              >
+                <span className="fw-medium text-dark">{p.username}</span>
+                {p.id === myId && (
+                  <Badge bg="primary" className="rounded-pill" style={{ fontSize: '0.6rem' }}>
+                    您
+                  </Badge>
+                )}
+                {idx === 0 && <span className="small opacity-50">🏠</span>}
+              </div>
+            ))}
+          </div>
+
+          {/* Waiting Status + Start Button */}
+          <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 pt-3 border-top">
+            <div className="text-center text-md-start">
+              {!canStart ? (
+                <div className="d-flex align-items-center gap-2 text-muted">
+                  <div
+                    className="spinner-grow text-secondary"
+                    role="status"
+                    style={{ width: '1rem', height: '1rem' }}
+                  ></div>
+                  <span className="fw-bold small">
+                    等待更多玩家... 還需要 {config.minPlayers - players.length} 位
+                  </span>
+                </div>
+              ) : (
+                <div className="d-flex align-items-center gap-2 text-success">
+                  <Play size={18} />
+                  <span className="fw-bold small">準備就緒！{!isHost && '等待房主開始遊戲'}</span>
+                </div>
+              )}
+            </div>
+
+            {isHost && (
+              <Button
+                className="rounded-pill px-4 py-2 fw-bold border-0 shadow-sm"
+                style={{
+                  background: config.gradient,
+                  opacity: canStart ? 1 : 0.6,
+                }}
+                onClick={onStartGame}
+                disabled={!canStart}
+              >
+                {canStart ? '立即開始遊戲' : `等待玩家 (${players.length}/${config.minPlayers})`}
+              </Button>
+            )}
+          </div>
+        </Card.Body>
+      </Card>
+
       <Row className="g-3 g-md-4">
         {/* Rules Section */}
         <Col xs={12} lg={hostControls ? 6 : 12}>
@@ -137,48 +181,15 @@ const GameLobby: React.FC<GameLobbyProps> = ({
         )}
       </Row>
 
-      {/* Entry Status Section */}
-      <div className="py-4 py-md-5 text-center bg-white rounded-4 shadow-sm border border-dashed border-2">
-        <div className="mb-3 mb-md-4">
-          {!canStart ? (
-            <div className="text-muted">
-              <div
-                className="spinner-grow text-secondary mb-3"
-                role="status"
-                style={{ width: '2rem', height: '2rem' }}
-              ></div>
-              <h5 className="fw-bold fs-6 fs-md-5">等待更多玩家加入...</h5>
-              <p className="small mb-0">還需要至少 {config.minPlayers - players.length} 位玩家</p>
-            </div>
-          ) : (
-            <div className="text-success">
-              <div className="mb-2 mb-md-3">
-                <Play size={32} className="animate-bounce" />
-              </div>
-              <h5 className="fw-bold fs-6 fs-md-5">準備就緒！</h5>
-              <p className="small text-muted mb-0">
-                {isHost ? '您可以點擊下方按鈕開始遊戲' : '等待房主開始遊戲...'}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {isHost && (
-          <Button
-            size="lg"
-            className="rounded-pill px-4 px-md-5 py-2 py-md-3 fw-bold border-0 shadow transition-all scale-hover"
-            style={{
-              background: config.gradient,
-              minWidth: '200px',
-              transform: canStart ? 'scale(1.05)' : 'none',
-              opacity: canStart ? 1 : 0.6,
-            }}
-            onClick={onStartGame}
-            disabled={!canStart}
-          >
-            {canStart ? '立即開始遊戲' : `等待玩家 (${players.length}/${config.minPlayers})`}
-          </Button>
-        )}
+      {/* Leave Button - Mobile only, at bottom */}
+      <div className="d-md-none">
+        <Button
+          variant="outline-danger"
+          className="w-100 rounded-pill py-2 shadow-sm d-flex align-items-center justify-content-center gap-2"
+          onClick={onLeave}
+        >
+          <LogOut size={18} /> 離開房間
+        </Button>
       </div>
     </div>
   );

@@ -175,11 +175,54 @@ const Pictomania: React.FC<PictomaniaProps> = ({
     }
   }, [currentRound, me.isDoneDrawing, phase]);
 
+  // Initialize canvases from history when entering guessing phase
+  useEffect(() => {
+    if (phase === 'playing' && me.isDoneDrawing && history.length > 0) {
+      // Give a small delay to ensure canvas refs are registered after PlayerList mounts
+      const timer = setTimeout(() => {
+        history
+          .filter((h: any) => h.round === currentRound && h.playerId !== me.id)
+          .forEach((h: any) => {
+            const canvas = canvasRefs.current[h.playerId];
+            if (canvas && h.imageBase64) {
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                const img = new Image();
+                img.onload = () => {
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0);
+                };
+                img.src = h.imageBase64;
+              }
+            }
+          });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, me.isDoneDrawing, history, currentRound, me.id]);
+
   const startGame = () =>
     socket.emit('start_game', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
   const nextRound = () =>
     socket.emit('next_round', { roomId, difficulty: currentDifficulty, drawTime: currentDrawTime });
   const handleFinishDrawing = () => {
+    // First, upload the canvas image so other players can see it
+    if (myCanvasRef.current) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = 1200;
+      tempCanvas.height = 800;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      if (tempCtx) {
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, 1200, 800);
+        tempCtx.drawImage(myCanvasRef.current, 0, 0);
+
+        const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.6);
+        socket.emit('upload_image', { roomId, imageBase64: dataUrl });
+      }
+    }
+
     socket.emit('player_finish_drawing', roomId);
     localStorage.removeItem('pictomania_canvas_backup');
   };

@@ -108,30 +108,28 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   };
 
   return (
-    <div className="canvas-wrapper">
-      <canvas
-        ref={canvasRef}
-        width={PICTOMANIA_CANVAS_WIDTH}
-        height={PICTOMANIA_CANVAS_HEIGHT}
-        style={{
-          width: '100%',
-          height: 'auto',
-          display: 'block',
-          cursor: phase === 'playing' && !me?.isDoneDrawing ? 'crosshair' : 'not-allowed',
-          backgroundColor: '#ffffff',
-          borderRadius: '4px',
-          boxShadow: 'inset 0 0 20px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1)',
-          touchAction: 'none',
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleStopDrawing}
-        onMouseOut={handleStopDrawing}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleStopDrawing}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      width={PICTOMANIA_CANVAS_WIDTH}
+      height={PICTOMANIA_CANVAS_HEIGHT}
+      style={{
+        width: '100%',
+        height: 'auto',
+        display: 'block',
+        cursor: phase === 'playing' && !me?.isDoneDrawing ? 'crosshair' : 'not-allowed',
+        backgroundColor: '#ffffff',
+        borderRadius: '4px',
+        boxShadow: 'inset 0 0 20px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1)',
+        touchAction: 'none',
+      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleStopDrawing}
+      onMouseOut={handleStopDrawing}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleStopDrawing}
+    />
   );
 };
 
