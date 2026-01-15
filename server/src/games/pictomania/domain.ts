@@ -18,7 +18,7 @@ export class PictomaniaRound {
   private scoreCards: Record<PlayerId, number[]>;
   private correctGuesses: Record<PlayerId, PlayerHistoryEntry[]>; // TargetId -> List of people who guessed them correctly
   private scores: Record<PlayerId, number>; // Temporary score accumulation from guesses
-  private activeGuesses: Record<PlayerId, Map<PlayerId, number>>;
+  private activeGuesses: Record<PlayerId, Record<PlayerId, number>>;
 
   constructor(players: PlayerId[]) {
     this.players = players;
@@ -31,7 +31,7 @@ export class PictomaniaRound {
       this.scoreCards[p] = this.titlesForPlayerCount(this.players.length);
       this.correctGuesses[p] = [];
       this.scores[p] = 0;
-      this.activeGuesses[p] = new Map();
+      this.activeGuesses[p] = {};
     });
   }
 
@@ -73,12 +73,11 @@ export class PictomaniaRound {
       this.activeGuesses[newId] = this.activeGuesses[oldId];
       delete this.activeGuesses[oldId];
     }
-    // 5b. As Target (Map Keys inside other Guessers)
+    // 5b. As Target (Object Keys inside other Guessers)
     Object.values(this.activeGuesses).forEach((guessMap) => {
-      if (guessMap.has(oldId)) {
-        const val = guessMap.get(oldId)!;
-        guessMap.set(newId, val);
-        guessMap.delete(oldId);
+      if (guessMap[oldId] !== undefined) {
+        guessMap[newId] = guessMap[oldId];
+        delete guessMap[oldId];
       }
     });
   }
@@ -92,22 +91,20 @@ export class PictomaniaRound {
     }
 
     // Check if ALREADY guessed this target (One-time only rule)
-    if (guesserGuesses.has(targetId)) {
+    if (guesserGuesses[targetId] !== undefined) {
       // User requested strict locking: cannot change guess once made.
       throw new Error(`無法修改！您已經猜過這個玩家了。`);
     }
 
     // Check if number is already used on a DIFFERENT target
-    for (const [tid, num] of guesserGuesses.entries()) {
+    for (const [tid, num] of Object.entries(guesserGuesses)) {
       if (num === number && tid !== targetId) {
         // Number used elsewhere. Throw error as requested by current TDD spec.
-        // Or we could silently remove it from the other target if that was the UX.
-        // But test expects Error.
         throw new Error(`數字 ${number} 已經用在其他人身上了`);
       }
     }
 
-    guesserGuesses.set(targetId, number);
+    guesserGuesses[targetId] = number;
   }
 
   // --- Setup Logic ---
@@ -140,7 +137,7 @@ export class PictomaniaRound {
   }
 
   public getGuess(guesserId: PlayerId, targetId: PlayerId): number | undefined {
-    return this.activeGuesses[guesserId]?.get(targetId);
+    return this.activeGuesses[guesserId]?.[targetId];
   }
 
   private titlesForPlayerCount(count: number): number[] {
@@ -228,7 +225,8 @@ export class PictomaniaRound {
 
     for (const player of this.players) {
       const guesses = this.activeGuesses[player];
-      if (!guesses || guesses.size < totalPlayers - 1) {
+      // Check number of keys in the object
+      if (!guesses || Object.keys(guesses).length < totalPlayers - 1) {
         return false;
       }
     }

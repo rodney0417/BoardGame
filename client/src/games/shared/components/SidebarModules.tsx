@@ -1,20 +1,36 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-export const SidebarSection: React.FC<{ title?: string; children: React.ReactNode; isHost?: boolean; className?: string }> = ({ title, children, isHost, className = "" }) => (
+export const SidebarSection: React.FC<{
+  title?: string;
+  children: React.ReactNode;
+  isHost?: boolean;
+  className?: string;
+}> = ({ title, children, isHost, className = '' }) => (
   <div className={className}>
     {(title || isHost) && (
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
         <h6 className="text-muted small fw-bold m-0">{title}</h6>
-        {isHost && <span className="badge bg-dark-subtle text-dark-emphasis border fw-normal" style={{ fontSize: '0.6rem' }}>房主控制</span>}
+        {isHost && (
+          <span
+            className="badge bg-dark-subtle text-dark-emphasis border fw-normal"
+            style={{ fontSize: '0.6rem' }}
+          >
+            房主控制
+          </span>
+        )}
       </div>
     )}
     {children}
   </div>
 );
 
-export const SidebarStat: React.FC<{ label: string; value: string | number; icon?: React.ReactNode }> = ({ label, value, icon }) => (
-  <div className="d-flex align-items-center justify-content-between p-2 p-md-3 bg-white rounded-3 shadow-sm border mb-2 flex-grow-1">
+export const SidebarStat: React.FC<{
+  label: string;
+  value: string | number;
+  icon?: React.ReactNode;
+}> = ({ label, value, icon }) => (
+  <div className="d-flex align-items-center justify-content-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-grow-1">
     <span className="text-muted small fw-bold me-2">{label}</span>
     <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
       {icon && <span style={{ fontSize: '0.9rem' }}>{icon}</span>}
@@ -23,15 +39,16 @@ export const SidebarStat: React.FC<{ label: string; value: string | number; icon
   </div>
 );
 
-export const HostSettingControl: React.FC<{ 
-  label: string; 
-  options: number[]; 
-  currentValue: number; 
-  onSelect: (val: number) => void; 
+export const HostSettingControl: React.FC<{
+  label: string;
+  options: number[];
+  currentValue: number;
+  onSelect: (val: number) => void;
   isHost: boolean;
   unit?: string;
-}> = ({ label, options, currentValue, onSelect, isHost, unit = '' }) => (
-  <div className="d-flex align-items-center justify-content-between mb-3">
+  isLast?: boolean;
+}> = ({ label, options, currentValue, onSelect, isHost, unit = '', isLast = false }) => (
+  <div className={`d-flex align-items-center justify-content-between ${isLast ? '' : 'mb-3'}`}>
     <span className="text-muted small fw-bold">{label}</span>
     <div className="d-flex gap-2">
       {options.map((val) => (
@@ -40,11 +57,17 @@ export const HostSettingControl: React.FC<{
           size="sm"
           variant={currentValue === val ? 'primary' : 'outline-secondary'}
           className={`${unit ? 'rounded-pill px-2' : 'rounded-circle p-0'} fw-bold`}
-          style={{ width: unit ? 'auto' : '30px', height: unit ? 'auto' : '30px', minWidth: unit ? '45px' : '30px', cursor: isHost ? 'pointer' : 'default' }}
+          style={{
+            width: unit ? 'auto' : '30px',
+            height: unit ? 'auto' : '30px',
+            minWidth: unit ? '45px' : '30px',
+            cursor: isHost ? 'pointer' : 'default',
+          }}
           onClick={() => isHost && onSelect(val)}
           disabled={!isHost && currentValue !== val}
         >
-          {val}{unit}
+          {val}
+          {unit}
         </Button>
       ))}
     </div>

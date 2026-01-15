@@ -487,27 +487,42 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
       const player = room.players.find((p) => p.id === socket.id) as PictomaniaPlayer;
 
       if (player && room.gameState.history) {
-        const exists = room.gameState.history.some(
+        let historyEntry = room.gameState.history.find(
           (r) => r.round === room.gameState.currentRound && r.playerId === player.id,
         );
-        if (!exists) {
-          room.gameState.history.push({
+
+        if (historyEntry) {
+          // Update existing entry (for snapshots)
+          historyEntry.imageBase64 = imageBase64;
+          // Optionally update other fields if needed
+        } else {
+          // Create new enty
+          historyEntry = {
             round: room.gameState.currentRound,
             playerId: player.id,
             playerName: player.username,
             playerColor: player.color,
             word: player.targetWord || '未知',
             imageBase64: imageBase64,
-          });
-          io.to(room.id).emit('update_canvas', {
-            playerId: player.id,
-            imageBase64,
-          });
-          console.log(
-            `[Pictomania] 收到 ${player.username} 第 ${room.gameState.currentRound} 回合的畫作並廣播`,
-          );
+          };
+          room.gameState.history.push(historyEntry);
         }
+
+        io.to(room.id).emit('update_canvas', {
+          playerId: player.id,
+          imageBase64,
+        });
+        
+        // Console log removed to reduce noise for frequent snapshot updates
       }
+      return false;
+    },
+
+    request_all_canvases: (io, room, socket, data) => {
+      // Broadcast to all clients to send their current canvas state
+      io.to(room.id).emit('request_round_images', {
+        round: room.gameState.currentRound,
+      });
       return false;
     },
 

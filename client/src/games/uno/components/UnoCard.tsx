@@ -7,6 +7,7 @@ interface UnoCardProps {
   onClick?: () => void;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  displayColor?: CardColor;
 }
 
 const VALUE_DISPLAY: Record<string, string> = {
@@ -17,8 +18,15 @@ const VALUE_DISPLAY: Record<string, string> = {
   wild_draw_four: '+4',
 };
 
-const UnoCard: React.FC<UnoCardProps> = ({ card, onClick, disabled = false, size = 'md' }) => {
-  const bgColor = UNO_COLORS[card.color]?.hex || '#424242';
+const UnoCard: React.FC<UnoCardProps> = ({
+  card,
+  onClick,
+  disabled = false,
+  size = 'md',
+  displayColor,
+}) => {
+  const effectiveColor = displayColor || card.color;
+  const bgColor = UNO_COLORS[effectiveColor]?.hex || '#424242';
   const displayValue = VALUE_DISPLAY[card.value] || card.value;
 
   const sizeStyles = {

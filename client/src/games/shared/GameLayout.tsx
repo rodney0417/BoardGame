@@ -8,6 +8,7 @@ interface GameLayoutProps {
   footer?: React.ReactNode;
   maxWidth?: string;
   reverseMobile?: boolean; // If true, sidebar shows ABOVE main on mobile
+  gameInfo?: React.ReactNode; // Shared game status section (responsive positioning)
 }
 
 const GameLayout: React.FC<GameLayoutProps> = ({
@@ -17,6 +18,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
   footer,
   maxWidth = '1400px',
   reverseMobile = false,
+  gameInfo,
 }) => {
   return (
     <Container fluid className="py-3" style={{ maxWidth }}>
@@ -49,9 +51,18 @@ const GameLayout: React.FC<GameLayoutProps> = ({
 
       {/* Optional Header */}
       {header && (
-        <Row className="flex-shrink-0 mt-0 mb-3 px-2 px-md-0">
+        <Row className="flex-shrink-0 mt-0 mb-2 mb-md-3 px-2 px-md-0">
           <Col xs={12} className="p-0">
             {header}
+          </Col>
+        </Row>
+      )}
+
+      {/* Mobile Game Info (visible only on mobile) */}
+      {gameInfo && (
+        <Row className="d-md-none flex-shrink-0 mt-0 mb-2 px-2">
+          <Col xs={12} className="p-0">
+            {gameInfo}
           </Col>
         </Row>
       )}
@@ -60,22 +71,26 @@ const GameLayout: React.FC<GameLayoutProps> = ({
         {/* Main Column (Room List on Desktop) */}
         <Col
           xs={12}
-          md={sidebar ? 8 : 12}
-          xl={sidebar ? 9 : 12}
+          md={sidebar || gameInfo ? 8 : 12}
+          xl={sidebar || gameInfo ? 9 : 12}
           className={`${reverseMobile ? 'order-2 order-md-1 main-bottom' : 'order-1 order-md-1'}`}
         >
           {main}
         </Col>
 
         {/* Sidebar Column (Info on Desktop, Top on Mobile) */}
-        {sidebar && (
+        {(sidebar || gameInfo) && (
           <Col
             xs={12}
             md={4}
             xl={3}
             className={`${reverseMobile ? 'order-1 order-md-2 sidebar-top' : 'order-2 order-md-2'}`}
           >
-            <div className="sticky-sidebar d-flex flex-column">{sidebar}</div>
+            <div className="sticky-sidebar d-flex flex-column">
+              {/* Desktop Game Info (visible only on desktop) */}
+              {gameInfo && <div className="d-none d-md-block mb-3">{gameInfo}</div>}
+              {sidebar}
+            </div>
           </Col>
         )}
       </Row>

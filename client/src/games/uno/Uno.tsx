@@ -21,15 +21,11 @@ interface UnoProps {
 }
 
 const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom }) => {
-  const { 
-    roomId, 
-    gameState, 
-    phase, 
-    players, 
-    me, 
-    isHost, 
-    otherPlayers 
-  } = useGameRoom<UnoState, any, UnoPlayer>(room, myInitialInfo.id);
+  const { roomId, gameState, phase, players, me, isHost, otherPlayers } = useGameRoom<
+    UnoState,
+    any,
+    UnoPlayer
+  >(room, myInitialInfo.id);
 
   const [hand, setHand] = useState<UnoCardType[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -149,257 +145,274 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
   }
 
   if (phase === 'round_ended') {
-      const winnerId = gameState?.roundWinner;
-      const roundPoints = gameState?.roundPoints;
-      
-      return (
-          <UnoSettlementView 
-            players={players}
-            winnerId={winnerId}
-            roundPoints={roundPoints}
-            onNextRound={() => socket.emit('next_round', room.id)}
-            isHost={room.players[0]?.id === me.id}
-          />
-      );
+    const winnerId = gameState?.roundWinner;
+    const roundPoints = gameState?.roundPoints;
+
+    return (
+      <UnoSettlementView
+        players={players}
+        winnerId={winnerId}
+        roundPoints={roundPoints}
+        onNextRound={() => socket.emit('next_round', room.id)}
+        isHost={room.players[0]?.id === me.id}
+      />
+    );
   }
 
-  const sidebarContent = (
-      <>
-        <SidebarSection title="遊戲狀態">
-           <SidebarStat 
-              label="目前顏色" 
-              value={activeColor || '無'} 
-              icon={
-                <div
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '50%',
-                    backgroundColor: getUnoColorHex(activeColor),
-                  }}
-                />
-              }
-           />
-           <SidebarStat 
-              label="出牌方向" 
-              value={direction === 1 ? '順時針' : '逆時針'} 
-              icon={<span style={{ transform: direction === -1 ? 'scaleX(-1)' : 'none', display: 'inline-block' }}>↻</span>}
-           />
-           <SidebarStat 
-              label="牌堆剩餘" 
-              value={deckSize || 0} 
-              icon="🎴" 
-           />
-        </SidebarSection>
+  const gameInfoSection = (
+    <SidebarSection className="d-flex flex-column gap-2">
+      <SidebarStat
+        label="目前顏色"
+        value={activeColor || '無'}
+        icon={
+          <div
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              backgroundColor: getUnoColorHex(activeColor),
+            }}
+          />
+        }
+      />
+      <SidebarStat
+        label="出牌方向"
+        value={direction === 1 ? '順時針' : '逆時針'}
+        icon={
+          <span
+            style={{
+              transform: direction === -1 ? 'scaleX(-1)' : 'none',
+              display: 'inline-block',
+            }}
+          >
+            ↻
+          </span>
+        }
+      />
+      <SidebarStat label="牌堆剩餘" value={deckSize || 0} icon="🎴" />
+    </SidebarSection>
+  );
 
-        <div className="mt-auto pt-4">
-            <Button 
-                variant="outline-danger" 
-                className="w-100 rounded-pill py-2 shadow-sm"
-                onClick={onLeaveRoom}
-            >
-                離開房間
-            </Button>
-        </div>
-      </>
+  const sidebarContent = (
+    <div className="mt-auto pt-4">
+      <Button
+        variant="outline-danger"
+        className="w-100 rounded-pill py-2 shadow-sm"
+        onClick={onLeaveRoom}
+      >
+        離開房間
+      </Button>
+    </div>
   );
 
   return (
     <GameLayout
       maxWidth="1400px"
       sidebar={sidebarContent}
-      onLeave={onLeaveRoom}
+      gameInfo={gameInfoSection}
       main={
         <>
-            {unoEffect.visible && (
+          {unoEffect.visible && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+                pointerEvents: 'none',
+              }}
+            >
+              <div className="text-center">
                 <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 9999,
-                        pointerEvents: 'none',
-                    }}
+                  className="fw-bold text-danger"
+                  style={{
+                    fontSize: '8rem',
+                    textShadow: '0px 0px 20px rgba(0,0,0,0.5), 4px 4px 0px #000',
+                    animation: 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  }}
                 >
-                    <div className="text-center">
-                        <div
-                        className="fw-bold text-danger"
-                        style={{
-                            fontSize: '8rem',
-                            textShadow: '0px 0px 20px rgba(0,0,0,0.5), 4px 4px 0px #000',
-                            animation: 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                        }}
-                        >
-                        UNO!
-                        </div>
-                        <div
-                        className="fs-2 text-white fw-bold"
-                        style={{
-                            textShadow: '2px 2px 4px #000',
-                            animation: 'fadeIn 0.5s ease-out',
-                        }}
-                        >
-                        {unoEffect.username}
-                        </div>
-                    </div>
+                  UNO!
                 </div>
-            )}
-
-            <div className="d-flex flex-column gap-4">
-                 {/* Opponents */}
-                 <div className="d-flex justify-content-center gap-3 flex-wrap">
-                    {players
-                    .filter((p: UnoPlayer) => p.id !== me.id)
-                    .map((p: UnoPlayer) => (
-                        <Card
-                        key={p.id}
-                        className={
-                            `text-center shadow-sm ${currentPlayer === p.id ? 'border-warning border-3' : 'border'} ` +
-                            (p.isUno ? 'border-danger' : '')
-                        }
-                        style={{ width: '110px', transition: 'all 0.3s' }}
-                        >
-                        <Card.Body className="p-2 position-relative">
-                            {p.isUno && (
-                            <div className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                UNO!
-                            </div>
-                            )}
-                            <div className="fw-bold small text-truncate">{p.username}</div>
-                            <div className="fs-4 fw-bold text-primary">{p.handCount || 0}</div>
-                            <small className="text-muted">張牌</small>
-                            {p.handCount === 1 && !p.isUno && (
-                            <Button
-                                size="sm"
-                                variant="danger"
-                                className="mt-1 w-100"
-                                onClick={() => handleChallengeUno(p.id)}
-                            >
-                                挑戰!
-                            </Button>
-                            )}
-                        </Card.Body>
-                        </Card>
-                    ))}
+                <div
+                  className="fs-2 text-white fw-bold"
+                  style={{
+                    textShadow: '2px 2px 4px #000',
+                    animation: 'fadeIn 0.5s ease-out',
+                  }}
+                >
+                  {unoEffect.username}
                 </div>
+              </div>
+            </div>
+          )}
 
-                {/* Center Table */}
-                <Card className="bg-light border-0 shadow-sm" style={{ borderRadius: '16px' }}>
-                    <Card.Body
-                    className="d-flex justify-content-center align-items-center gap-5 py-5"
-                    style={{ minHeight: '300px' }}
-                    >
-                        {/* Draw Pile */}
-                        <div
-                            className={`card-back d-flex align-items-center justify-content-center cursor-pointer ${isMyTurn && !hasDrawnThisTurn ? 'hover-scale' : ''}`}
-                            style={{
-                            width: '90px',
-                            height: '130px',
-                            background: 'linear-gradient(135deg, #111 0%, #333 100%)',
-                            borderRadius: '8px',
-                            border: '3px solid white',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                            cursor: isMyTurn && !hasDrawnThisTurn ? 'pointer' : 'default',
-                            userSelect: 'none',
-                            }}
-                            onClick={handleDraw}
+          <div className="d-flex flex-column gap-4">
+            {/* Opponents */}
+            <div className="d-flex justify-content-center gap-3 flex-wrap">
+              {players
+                .filter((p: UnoPlayer) => p.id !== me.id)
+                .map((p: UnoPlayer) => (
+                  <Card
+                    key={p.id}
+                    className={
+                      `text-center shadow-sm ${currentPlayer === p.id ? 'border-warning border-3' : 'border'} ` +
+                      (p.isUno ? 'border-danger' : '')
+                    }
+                    style={{ width: '110px', transition: 'all 0.3s' }}
+                  >
+                    <Card.Body className="p-2 position-relative">
+                      {p.isUno && (
+                        <div className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                          UNO!
+                        </div>
+                      )}
+                      <div className="fw-bold small text-truncate">{p.username}</div>
+                      <div className="fs-4 fw-bold text-primary">{p.handCount || 0}</div>
+                      <small className="text-muted">張牌</small>
+                      {p.handCount === 1 && !p.isUno && (
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          className="mt-1 w-100"
+                          onClick={() => handleChallengeUno(p.id)}
                         >
-                            <div
-                            className="text-white fw-bold fs-4"
-                            style={{
-                                textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-                                fontStyle: 'italic',
-                                letterSpacing: '2px',
-                            }}
-                            >
-                            UNO
-                            </div>
-                        </div>
-
-                        {/* Discard Pile (Top Card) */}
-                        <div style={{ transform: 'scale(1.1)' }}>
-                            {topCard && <UnoCardComponent card={topCard} size="lg" />}
-                        </div>
+                          挑戰!
+                        </Button>
+                      )}
                     </Card.Body>
-                </Card>
-
-                {/* Action Buttons */}
-                <div className="d-flex justify-content-center gap-2">
-                    {isMyTurn && (
-                    <Button variant="outline-secondary" onClick={handlePass} disabled={!hasDrawnThisTurn}>
-                        跳過回合
-                    </Button>
-                    )}
-                    {canCallUno && (
-                    <Button
-                        variant="danger"
-                        className="fw-bold px-4 pulse-animation"
-                        onClick={handleCallUno}
-                    >
-                        🔔 UNO!
-                    </Button>
-                    )}
-                </div>
-
-                {/* My Hand */}
-                <div>
-                    <PlayerHand
-                    cards={[...hand].sort((a, b) => {
-                        const colorOrder: Record<string, number> = {
-                        red: 0,
-                        blue: 1,
-                        green: 2,
-                        yellow: 3,
-                        wild: 4,
-                        };
-                        const valueOrder: Record<string, number> = {
-                        '0': 0,
-                        '1': 1,
-                        '2': 2,
-                        '3': 3,
-                        '4': 4,
-                        '5': 5,
-                        '6': 6,
-                        '7': 7,
-                        '8': 8,
-                        '9': 9,
-                        skip: 10,
-                        reverse: 11,
-                        draw_two: 12,
-                        wild: 13,
-                        wild_draw_four: 14,
-                        wild_draw_four_game_over: 15,
-                        };
-
-                        if (colorOrder[a.color] !== colorOrder[b.color]) {
-                        return colorOrder[a.color] - colorOrder[b.color];
-                        }
-                        return (valueOrder[a.value] || 0) - (valueOrder[b.value] || 0);
-                    })}
-                    onCardClick={handlePlayCard}
-                    isCurrentPlayer={isMyTurn}
-                    activeColor={activeColor || 'red'}
-                    topCard={topCard || { color: 'red', value: '0' }}
-                    />
-                </div>
+                  </Card>
+                ))}
             </div>
 
-            <ColorPicker
-                show={showColorPicker}
-                onSelect={handleColorSelect}
-                onCancel={() => {
-                setShowColorPicker(false);
-                setPendingCard(null);
-                }}
-            />
+            {/* Center Table */}
+            <Card className="bg-light border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+              <Card.Body
+                className="d-flex justify-content-center align-items-center gap-5 py-5"
+                style={{ minHeight: '300px' }}
+              >
+                {/* Draw Pile */}
+                <div
+                  className={`card-back d-flex align-items-center justify-content-center cursor-pointer ${isMyTurn && !hasDrawnThisTurn ? 'hover-scale' : ''}`}
+                  style={{
+                    width: '90px',
+                    height: '130px',
+                    background: 'linear-gradient(135deg, #111 0%, #333 100%)',
+                    borderRadius: '8px',
+                    border: '3px solid white',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    cursor: isMyTurn && !hasDrawnThisTurn ? 'pointer' : 'default',
+                    userSelect: 'none',
+                  }}
+                  onClick={handleDraw}
+                >
+                  <div
+                    className="text-white fw-bold fs-4"
+                    style={{
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                      fontStyle: 'italic',
+                      letterSpacing: '2px',
+                    }}
+                  >
+                    UNO
+                  </div>
+                </div>
 
-            <style>
-                {`
+                {/* Discard Pile (Top Card) */}
+                <div style={{ transform: 'scale(1.1)' }}>
+                  {topCard && (
+                    <UnoCardComponent
+                      card={topCard}
+                      size="lg"
+                      displayColor={
+                        topCard.color === 'wild' && activeColor ? activeColor : undefined
+                      }
+                    />
+                  )}
+                </div>
+              </Card.Body>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="d-flex justify-content-center gap-2">
+              {isMyTurn && (
+                <Button
+                  variant="outline-secondary"
+                  onClick={handlePass}
+                  disabled={!hasDrawnThisTurn}
+                >
+                  跳過回合
+                </Button>
+              )}
+              {canCallUno && (
+                <Button
+                  variant="danger"
+                  className="fw-bold px-4 pulse-animation"
+                  onClick={handleCallUno}
+                >
+                  🔔 UNO!
+                </Button>
+              )}
+            </div>
+
+            {/* My Hand */}
+            <div>
+              <PlayerHand
+                cards={[...hand].sort((a, b) => {
+                  const colorOrder: Record<string, number> = {
+                    red: 0,
+                    blue: 1,
+                    green: 2,
+                    yellow: 3,
+                    wild: 4,
+                  };
+                  const valueOrder: Record<string, number> = {
+                    '0': 0,
+                    '1': 1,
+                    '2': 2,
+                    '3': 3,
+                    '4': 4,
+                    '5': 5,
+                    '6': 6,
+                    '7': 7,
+                    '8': 8,
+                    '9': 9,
+                    skip: 10,
+                    reverse: 11,
+                    draw_two: 12,
+                    wild: 13,
+                    wild_draw_four: 14,
+                    wild_draw_four_game_over: 15,
+                  };
+
+                  if (colorOrder[a.color] !== colorOrder[b.color]) {
+                    return colorOrder[a.color] - colorOrder[b.color];
+                  }
+                  return (valueOrder[a.value] || 0) - (valueOrder[b.value] || 0);
+                })}
+                onCardClick={handlePlayCard}
+                isCurrentPlayer={isMyTurn}
+                activeColor={activeColor || 'red'}
+                topCard={topCard || { color: 'red', value: '0' }}
+              />
+            </div>
+          </div>
+
+          <ColorPicker
+            show={showColorPicker}
+            onSelect={handleColorSelect}
+            onCancel={() => {
+              setShowColorPicker(false);
+              setPendingCard(null);
+            }}
+          />
+
+          <style>
+            {`
                 .hover-scale { transition: transform 0.2s; }
                 .hover-scale:hover { transform: scale(1.05); }
                 @keyframes popIn {
@@ -420,7 +433,7 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
                     animation: pulse 2s infinite;
                 }
                 `}
-            </style>
+          </style>
         </>
       }
     />
