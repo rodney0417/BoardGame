@@ -302,64 +302,71 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
             </div>
 
             {/* Center Table */}
-            <Card className="bg-light border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+            <Card
+              className={`bg-light ${isMyTurn ? 'border-warning border-3 shadow-lg' : 'border-0 shadow-sm'}`}
+              style={{ borderRadius: '16px', transition: 'all 0.3s' }}
+            >
               <Card.Body
-                className="d-flex justify-content-center align-items-center gap-5 py-5"
+                className="d-flex flex-column justify-content-center align-items-center gap-4 py-5"
                 style={{ minHeight: '300px' }}
               >
-                {/* Draw Pile */}
-                <div
-                  className={`card-back d-flex align-items-center justify-content-center cursor-pointer ${isMyTurn && !hasDrawnThisTurn ? 'hover-scale' : ''}`}
-                  style={{
-                    width: '90px',
-                    height: '130px',
-                    background: 'linear-gradient(135deg, #111 0%, #333 100%)',
-                    borderRadius: '8px',
-                    border: '3px solid white',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                    cursor: isMyTurn && !hasDrawnThisTurn ? 'pointer' : 'default',
-                    userSelect: 'none',
-                  }}
-                  onClick={handleDraw}
-                >
+                <div className="d-flex justify-content-center align-items-center gap-5">
+                  {/* Draw Pile */}
                   <div
-                    className="text-white fw-bold fs-4"
+                    className={`card-back d-flex align-items-center justify-content-center cursor-pointer ${isMyTurn && !hasDrawnThisTurn ? 'hover-scale' : ''}`}
                     style={{
-                      textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-                      fontStyle: 'italic',
-                      letterSpacing: '2px',
+                      width: '90px',
+                      height: '130px',
+                      background: 'linear-gradient(135deg, #111 0%, #333 100%)',
+                      borderRadius: '8px',
+                      border: '3px solid white',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      cursor: isMyTurn && !hasDrawnThisTurn ? 'pointer' : 'default',
+                      userSelect: 'none',
                     }}
+                    onClick={handleDraw}
                   >
-                    UNO
+                    <div
+                      className="text-white fw-bold fs-4"
+                      style={{
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                        fontStyle: 'italic',
+                        letterSpacing: '2px',
+                      }}
+                    >
+                      UNO
+                    </div>
+                  </div>
+
+                  {/* Discard Pile (Top Card) */}
+                  <div style={{ transform: 'scale(1.1)' }}>
+                    {topCard && (
+                      <UnoCardComponent
+                        card={topCard}
+                        size="lg"
+                        displayColor={
+                          topCard.color === 'wild' && activeColor ? activeColor : undefined
+                        }
+                      />
+                    )}
                   </div>
                 </div>
 
-                {/* Discard Pile (Top Card) */}
-                <div style={{ transform: 'scale(1.1)' }}>
-                  {topCard && (
-                    <UnoCardComponent
-                      card={topCard}
-                      size="lg"
-                      displayColor={
-                        topCard.color === 'wild' && activeColor ? activeColor : undefined
-                      }
-                    />
-                  )}
-                </div>
+                {/* Skip Turn Button - Moved inside */}
+                {isMyTurn && hasDrawnThisTurn && (
+                  <Button
+                    variant="outline-secondary"
+                    onClick={handlePass}
+                    className="px-4 rounded-pill shadow-sm"
+                  >
+                    跳過回合
+                  </Button>
+                )}
               </Card.Body>
             </Card>
 
-            {/* Action Buttons */}
+            {/* Action Buttons (Call UNO) */}
             <div className="d-flex justify-content-center gap-2">
-              {isMyTurn && (
-                <Button
-                  variant="outline-secondary"
-                  onClick={handlePass}
-                  disabled={!hasDrawnThisTurn}
-                >
-                  跳過回合
-                </Button>
-              )}
               {canCallUno && (
                 <Button
                   variant="danger"
