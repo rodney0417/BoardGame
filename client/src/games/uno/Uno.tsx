@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUnoColorHex } from './constants';
 import { useGameRoom } from '../shared/hooks/useGameRoom';
-import { SidebarSection, SidebarStat } from '../shared/components/SidebarModules';
+import { SidebarSection } from '../shared/components/SidebarModules';
 import { Socket } from 'socket.io-client';
 import { Button, Card, Row, Col } from 'react-bootstrap';
 import { UnoCard as UnoCardType, UnoPlayer, CardColor, UnoState } from './types';
@@ -160,11 +160,11 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
   }
 
   const gameInfoSection = (
-    <SidebarSection className="d-flex flex-column gap-2">
-      <SidebarStat
-        label="目前顏色"
-        value={activeColor || '無'}
-        icon={
+    <SidebarSection className="d-flex flex-row flex-lg-column gap-2">
+      {/* Active Color */}
+      <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
+        <span className="text-muted small fw-bold me-2 d-none d-lg-block">目前顏色</span>
+        <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
           <div
             style={{
               width: '16px',
@@ -173,23 +173,35 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
               backgroundColor: getUnoColorHex(activeColor),
             }}
           />
-        }
-      />
-      <SidebarStat
-        label="出牌方向"
-        value={direction === 1 ? '順時針' : '逆時針'}
-        icon={
+          <span className="fw-bold text-dark small">{activeColor || '無'}</span>
+        </div>
+      </div>
+
+      {/* Direction */}
+      <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
+        <span className="text-muted small fw-bold me-2 d-none d-lg-block">出牌方向</span>
+        <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
           <span
             style={{
               transform: direction === -1 ? 'scaleX(-1)' : 'none',
               display: 'inline-block',
+              fontSize: '0.9rem',
             }}
           >
             ↻
           </span>
-        }
-      />
-      <SidebarStat label="牌堆剩餘" value={deckSize || 0} icon="🎴" />
+          <span className="fw-bold text-dark small">{direction === 1 ? '順時針' : '逆時針'}</span>
+        </div>
+      </div>
+
+      {/* Deck Size */}
+      <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
+        <span className="text-muted small fw-bold me-2 d-none d-lg-block">牌堆剩餘</span>
+        <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+          <span style={{ fontSize: '0.9rem' }}>🎴</span>
+          <span className="fw-bold text-dark small">{deckSize || 0}</span>
+        </div>
+      </div>
     </SidebarSection>
   );
 

@@ -23,11 +23,7 @@ import {
   PICTOMANIA_CANVAS_HEIGHT,
 } from './constants';
 import { useGameRoom } from '../shared/hooks/useGameRoom';
-import {
-  SidebarSection,
-  SidebarStat,
-  HostSettingControl,
-} from '../shared/components/SidebarModules';
+import { SidebarSection, HostSettingControl } from '../shared/components/SidebarModules';
 
 interface PictomaniaSettings {
   difficulty: number;
@@ -332,16 +328,33 @@ const Pictomania: React.FC<PictomaniaProps> = ({
         onRestart={startGame}
         onBackToLobby={onLeaveRoom}
       >
-        <GameOverView players={players} history={history} onRestart={startGame} />
+        <GameOverView players={players} history={history} />
       </GameOver>
     );
   }
 
   const gameInfoSection = (
     <SidebarSection>
-      <div className="d-flex flex-wrap flex-md-column gap-3">
-        <SidebarStat label="目前回合" value={`${currentRound} / 5`} icon="🏁" />
-        {phase === 'playing' && <SidebarStat label="剩餘時間" value={`${timeLeft}s`} icon="⏱️" />}
+      <div className="d-flex flex-row flex-lg-column gap-2">
+        {/* Round Info */}
+        <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
+          <span className="text-muted small fw-bold me-2 d-none d-lg-block">目前回合</span>
+          <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+            <span style={{ fontSize: '0.9rem' }}>🏁</span>
+            <span className="fw-bold text-dark small">{currentRound} / 5</span>
+          </div>
+        </div>
+
+        {/* Time Left - Only show during playing */}
+        {phase === 'playing' && (
+          <div className="d-flex align-items-center justify-content-center justify-content-lg-between p-2 p-md-3 bg-white rounded-3 shadow-sm border flex-fill">
+            <span className="text-muted small fw-bold me-2 d-none d-lg-block">剩餘時間</span>
+            <div className="d-flex align-items-center gap-2 bg-light px-2 px-md-3 py-1 rounded-pill border">
+              <span style={{ fontSize: '0.9rem' }}>⏱️</span>
+              <span className="fw-bold text-dark small">{timeLeft}s</span>
+            </div>
+          </div>
+        )}
       </div>
     </SidebarSection>
   );
