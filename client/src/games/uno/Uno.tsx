@@ -1,17 +1,23 @@
+```
 import React, { useState, useEffect } from 'react';
 import { getUnoColorHex, getUnoColorName } from './constants';
-import { useGameRoom } from '../shared/hooks/useGameRoom';
-import { SidebarSection } from '../shared/components/SidebarModules';
+import {
+  useGameRoom,
+  SidebarSection,
+  GameLobby,
+  GameOver,
+  GameLayout,
+  GameRulesModal,
+} from '../shared';
 import { Socket } from 'socket.io-client';
 import { Button, Card, Row, Col } from 'react-bootstrap';
 import { UnoCard as UnoCardType, UnoPlayer, CardColor, UnoState } from './types';
-import UnoCardComponent from './components/UnoCard';
-import PlayerHand from './components/PlayerHand';
-import ColorPicker from './components/ColorPicker';
-import GameLobby from '../shared/GameLobby';
-import GameOver from '../shared/GameOver';
-import UnoSettlementView from './components/UnoSettlementView';
-import GameLayout from '../shared/GameLayout';
+import {
+  UnoCard as UnoCardComponent,
+  PlayerHand,
+  ColorPicker,
+  UnoSettlementView,
+} from './components';
 
 interface UnoProps {
   socket: Socket;
@@ -30,6 +36,7 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
   const [hand, setHand] = useState<UnoCardType[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [pendingCard, setPendingCard] = useState<UnoCardType | null>(null);
+  const [showRules, setShowRules] = useState(false);
 
   const [unoEffect, setUnoEffect] = useState<{ visible: boolean; username: string }>({
     visible: false,
@@ -208,6 +215,13 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
   const sidebarContent = (
     <div className="mt-auto pt-4">
       <Button
+        variant="outline-primary"
+        className="w-100 rounded-pill py-2 shadow-sm"
+        onClick={() => setShowRules(true)}
+      >
+        📖 遊戲說明
+      </Button>
+      <Button
         variant="outline-danger"
         className="w-100 rounded-pill py-2 shadow-sm"
         onClick={onLeaveRoom}
@@ -224,6 +238,7 @@ const Uno: React.FC<UnoProps> = ({ socket, room, me: myInitialInfo, onLeaveRoom 
       gameInfo={gameInfoSection}
       main={
         <>
+          <GameRulesModal show={showRules} onHide={() => setShowRules(false)} gameType="uno" />
           {unoEffect.visible && (
             <div
               style={{

@@ -70,4 +70,28 @@ describe('SocketHandler', () => {
       expect(mockSocket.on).toHaveBeenCalledWith(event, expect.any(Function));
     });
   });
+
+  it('should register game_action event and route correctly', () => {
+    // Spy on private handleGameEvent logic
+    const spy = vi.spyOn(handler as any, 'handleGameEvent');
+
+    handler.registerEvents(mockSocket as Socket);
+
+    // Verify registration
+    expect(mockSocket.on).toHaveBeenCalledWith('game_action', expect.any(Function));
+
+    // Find and execute the callback to verify routing
+    const calls = (mockSocket.on as any).mock.calls;
+    const gameActionCall = calls.find((c: any[]) => c[0] === 'game_action');
+    expect(gameActionCall).toBeDefined();
+    
+    if (gameActionCall) {
+        const callback = gameActionCall[1];
+        // Simulate client emitting game_action
+        callback({ action: 'start_game', data: { foo: 'bar' } });
+        
+        // Should unwrap and call internal handler
+        expect(spy).toHaveBeenCalledWith(mockSocket, 'start_game', { foo: 'bar' });
+    }
+  });
 });

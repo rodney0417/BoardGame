@@ -1,6 +1,6 @@
 
 import { Server, Socket } from 'socket.io';
-import { RoomService } from '../../domain/room/RoomService';
+import { RoomService } from '../../domain/room';
 import { TimerService } from '../timer/TimerService';
 import games from '../../games';
 import { Room } from '../../types';
@@ -39,6 +39,18 @@ export class SocketHandler {
     ];
     gameEvents.forEach((event) => {
         socket.on(event, (data) => this.handleGameEvent(socket, event, data));
+    });
+
+    // 5.5 Standardized Game Action (Universal Handler)
+    socket.on('game_action', (payload) => {
+        console.log(`[Socket] received game_action from ${socket.id}:`, payload);
+        const { action, data } = payload || {};
+        if (action) {
+            console.log(`[Socket] dispatching action ${action} to handleGameEvent`);
+            this.handleGameEvent(socket, action, data || {});
+        } else {
+            console.warn(`[Socket] invalid game_action payload:`, payload);
+        }
     });
 
     // 6. Generic Draw/Clear

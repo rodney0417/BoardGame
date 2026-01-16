@@ -30,13 +30,15 @@ This project is a Board Game Platform ("萬遊引力") built with a strict adher
 
 Do not create your own components if a shared one exists. usage is **MANDATORY**.
 
-| Component          | Path                                       | Purpose                                          |
-| :----------------- | :----------------------------------------- | :----------------------------------------------- |
-| `<GameLobby />`    | `client/src/games/shared/GameLobby.tsx`    | Standard waiting room with player list/settings. |
-| `<GameOver />`     | `client/src/games/shared/GameOver.tsx`     | Standard results/leaderboard.                    |
-| `<GameTimer />`    | `client/src/games/shared/GameTimer.tsx`    | Standard floating countdown.                     |
-| `<GameLayout />`   | `client/src/games/shared/GameLayout.tsx`   | Responsive sidebar + main area.                  |
-| `<PlayerAvatar />` | `client/src/games/shared/PlayerAvatar.tsx` | Standard player display.                         |
+| Component            | Path                                       | Purpose                                          |
+| :------------------- | :----------------------------------------- | :----------------------------------------------- |
+| `<GameLobby />`      | `client/src/games/shared/GameLobby.tsx`    | Standard waiting room with player list/settings. |
+| `<GameOver />`       | `client/src/games/shared/GameOver.tsx`     | Standard results/leaderboard.                    |
+| `<GameTimer />`      | `client/src/games/shared/GameTimer.tsx`    | Standard floating countdown.                     |
+| `<GameLayout />`     | `client/src/games/shared/GameLayout.tsx`   | Responsive sidebar + main area. **MANDATORY**    |
+| `<SidebarSection />` | `.../shared/components/SidebarModules.tsx` | Standard container for game info.                |
+| `<SidebarStat />`    | `.../shared/components/SidebarModules.tsx` | Standard key-value stat row.                     |
+| `<PlayerAvatar />`   | `client/src/games/shared/PlayerAvatar.tsx` | Standard player display.                         |
 
 **Configuration**: Register new games in `client/src/games/shared/gameConfig.ts`.
 

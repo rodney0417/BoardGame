@@ -20,8 +20,19 @@ export class PictomaniaRound {
   private scores: Record<PlayerId, number>; // Temporary score accumulation from guesses
   private activeGuesses: Record<PlayerId, Record<PlayerId, number>>;
 
-  constructor(players: PlayerId[]) {
-    this.players = players;
+  constructor(playersOrState: PlayerId[] | any) {
+    if (!Array.isArray(playersOrState)) {
+        // Restore logic
+        const s = playersOrState;
+        this.players = s.players || [];
+        this.scoreCards = s.scoreCards || {};
+        this.correctGuesses = s.correctGuesses || {};
+        this.scores = s.scores || {};
+        this.activeGuesses = s.activeGuesses || {};
+        return;
+    }
+
+    this.players = playersOrState;
     this.scoreCards = {};
     this.correctGuesses = {};
     this.scores = {};
@@ -33,6 +44,20 @@ export class PictomaniaRound {
       this.scores[p] = 0;
       this.activeGuesses[p] = {};
     });
+  }
+
+  public static restore(state: any): PictomaniaRound {
+      return new PictomaniaRound(state);
+  }
+
+  public getState() {
+      return {
+          players: this.players,
+          scoreCards: this.scoreCards,
+          correctGuesses: this.correctGuesses,
+          scores: this.scores,
+          activeGuesses: this.activeGuesses
+      };
   }
 
   public updatePlayerId(oldId: PlayerId, newId: PlayerId): void {

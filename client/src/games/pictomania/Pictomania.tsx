@@ -3,17 +3,25 @@ import { Button, Card } from 'react-bootstrap';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { Socket } from 'socket.io-client';
 import { RoomDTO } from '../../types';
-import { SymbolIcon } from './PictomaniaIcons';
+import {
+  SymbolIcon,
+  GuessModal,
+  GameOverView,
+  DrawingCanvas,
+  PlayerList,
+  RoundResultSummary,
+} from './components';
 
-import GameTimer from '../shared/GameTimer';
-import GuessModal from './components/GuessModal';
-import GameOverView from './components/GameOverView';
-import DrawingCanvas from './components/DrawingCanvas';
-import PlayerList from './components/PlayerList';
-import RoundResultSummary from './components/RoundResultSummary';
-import GameLobby from '../shared/GameLobby';
-import GameOver from '../shared/GameOver';
-import GameLayout from '../shared/GameLayout';
+import {
+  GameTimer,
+  GameLobby,
+  GameOver,
+  GameLayout,
+  useGameRoom,
+  SidebarSection,
+  HostSettingControl,
+  GameRulesModal,
+} from '../shared';
 
 import { PictomaniaPlayer, PictomaniaPhase, PictomaniaState } from './types';
 import {
@@ -22,8 +30,6 @@ import {
   PICTOMANIA_CANVAS_WIDTH,
   PICTOMANIA_CANVAS_HEIGHT,
 } from './constants';
-import { useGameRoom } from '../shared/hooks/useGameRoom';
-import { SidebarSection, HostSettingControl } from '../shared/components/SidebarModules';
 
 interface PictomaniaSettings {
   difficulty: number;
@@ -54,6 +60,7 @@ const Pictomania: React.FC<PictomaniaProps> = ({
   const [showGuessModal, setShowGuessModal] = useState(false);
   const [targetPlayer, setTargetPlayer] = useState<PictomaniaPlayer | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
+  const [showRules, setShowRules] = useState(false);
 
   const drawTimes = PICTOMANIA_DRAW_TIMES;
 
@@ -366,6 +373,13 @@ const Pictomania: React.FC<PictomaniaProps> = ({
       )}
 
       <div className="mt-auto pt-4">
+        <Button
+          variant="outline-primary"
+          className="w-100 rounded-pill py-2 shadow-sm mb-2"
+          onClick={() => setShowRules(true)}
+        >
+          📖 遊戲說明
+        </Button>
         <Button
           variant="outline-danger"
           className="w-100 rounded-pill py-2 shadow-sm"

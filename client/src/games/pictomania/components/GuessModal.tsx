@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Row, Col, Button } from 'react-bootstrap';
-import { SymbolIcon } from '../PictomaniaIcons';
+import { SymbolIcon } from './PictomaniaIcons';
 import { PictomaniaPlayer } from '../types';
 
 interface GuessModalProps {

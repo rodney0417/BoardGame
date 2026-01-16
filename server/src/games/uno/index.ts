@@ -4,6 +4,7 @@ import { UnoRound, UnoCard, CardColor } from './domain';
 
 export interface UnoState {
   roundModel: UnoRound | null;
+  winner?: string;
 }
 
 export interface UnoSettings {
@@ -81,6 +82,7 @@ const Uno: GameModule<UnoState, UnoSettings> = {
           // Check for Game Winner (First to 500)
           if (winnerPlayer && (winnerPlayer as any).score >= 500) {
             room.phase = 'game_over';
+            (room.gameState as any).winner = winnerPlayer.id;
             io.to(room.id).emit('toast', {
               type: 'success',
               message: `🏆 恭喜 ${winnerPlayer.username} 達成 ${(winnerPlayer as any).score} 分，獲得最終勝利！`,

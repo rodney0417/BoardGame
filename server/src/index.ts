@@ -5,10 +5,8 @@ import fs from 'fs';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import { RedisRoomRepository } from './domain/room/RoomRepository';
-import { RoomService } from './domain/room/RoomService';
-import { SocketHandler } from './infrastructure/socket/SocketHandler';
-import { TimerService } from './infrastructure/timer/TimerService';
+import { RedisRoomRepository, RoomService } from './domain/room';
+import { SocketHandler, TimerService } from './infrastructure';
 
 const app = express();
 app.use(cors());

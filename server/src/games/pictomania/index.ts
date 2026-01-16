@@ -16,6 +16,7 @@ interface PictomaniaState {
   wordCards: Record<string, string[]>;
   currentRound: number;
   history: PictomaniaHistoryRecord[];
+  winner?: string;
 }
 
 // 擴充 Player 以包含 Pictomania 專屬欄位
@@ -139,6 +140,9 @@ const checkAndFinishRound = (io: Server, room: Room<PictomaniaState, PictomaniaS
       }
     });
 
+    // Sync persistent state
+    (room.gameState as any).roundState = roundModel.getState();
+
     const finalScores = roundModel.calculateFinalScores();
 
     room.players.forEach((p) => {
@@ -168,6 +172,16 @@ const checkAndFinishRound = (io: Server, room: Room<PictomaniaState, PictomaniaS
 
   if (room.gameState.currentRound >= room.settings.totalRounds) {
     room.phase = 'game_over';
+    // Calculate Winner
+    let maxScore = -Infinity;
+    let winnerId = '';
+    room.players.forEach(p => {
+        if (p.score > maxScore) {
+            maxScore = p.score;
+            winnerId = p.id;
+        }
+    });
+    room.gameState.winner = winnerId;
   } else {
     room.phase = 'round_ended';
   }
@@ -216,7 +230,12 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
   },
 
   onPlayerReconnect: (io, room, oldId, newId, socket) => {
-    // 1. Update Domain Model
+    // 1. Restore & Update Domain Model
+    if (!(room as any).roundModel && room.gameState && (room.gameState as any).roundState) {
+         console.log('[Pictomania] Restoring RoundModel from GameState');
+         (room as any).roundModel = PictomaniaRound.restore((room.gameState as any).roundState);
+    }
+
     const roundModel = (room as any).roundModel as PictomaniaRound;
     if (roundModel) {
       roundModel.updatePlayerId(oldId, newId);
@@ -250,7 +269,9 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     // Initialize Domain Model for this round
     const playerIds = room.players.map((p) => p.id);
     // Attach domain model to room directly
-    (room as any).roundModel = new PictomaniaRound(playerIds);
+    const roundModel = new PictomaniaRound(playerIds);
+    (room as any).roundModel = roundModel;
+    (room.gameState as any).roundState = roundModel.getState();
 
     // 1. Select Word Cards based on Difficulty Level
     const level = room.settings.difficulty || 1;
@@ -282,7 +303,7 @@ const Pictomania: GameModule<PictomaniaState, PictomaniaSettings> = {
     room.gameState.wordCards = roundWordCards;
 
     // 2. Distribute Secret Targets using Domain Model Logic (DDD)
-    const roundModel = (room as any).roundModel as PictomaniaRound;
+    // Reuse existing roundModel variable from above
     const assignments = roundModel.setupRound(activeSymbols);
 
     console.log(`[Pictomania] Assignments generated:`, assignments);
